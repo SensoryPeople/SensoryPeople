@@ -9,11 +9,11 @@ import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
 import com.sparta.sensorypeople.security.util.JwtUtil;
-import lombok.AllArgsConstructor;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * UserServiceImpl 클래스
@@ -22,12 +22,15 @@ import java.util.Optional;
  */
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    @Value("${admin.token}")
+    private String adminToken;
 
     @Override
     public void signup(SignupRequestDto signupRequest) {
@@ -36,12 +39,15 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ErrorCode.DUPLICATE_USER);
         }
 
-        User user = new User();
-        user.updateLoginId(signupRequest.getUserId());
-        user.updatePassword(passwordEncoder.encode(signupRequest.getPassword()));
-        user.updateUserName(signupRequest.getUserName());
-        user.updateEmail(signupRequest.getEmail());
-        user.updateUserAuth(signupRequest.getAdminToken().isEmpty() ? UserAuthEnum.USER : UserAuthEnum.ADMIN);
+        User user = new User(
+            null,
+            signupRequest.getUserId(),
+            passwordEncoder.encode(signupRequest.getPassword()),
+            signupRequest.getUserName(),
+            signupRequest.getEmail(),
+            signupRequest.getAdminToken().equals(adminToken) ? UserAuthEnum.ADMIN : UserAuthEnum.USER,
+            ""
+        );
 
         String refreshToken = jwtUtil.createRefreshToken(user.getLoginId());
         user.updateRefreshToken(refreshToken);
@@ -72,7 +78,6 @@ public class UserServiceImpl implements UserService {
         user.updateRefreshToken("");
         userRepository.save(user);
     }
-
 
     @Override
     public void withdraw(String userId, String password) {

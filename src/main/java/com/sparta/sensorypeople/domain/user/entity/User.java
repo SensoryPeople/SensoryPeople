@@ -3,8 +3,7 @@ package com.sparta.sensorypeople.domain.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * 사용자 엔티티
@@ -14,7 +13,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="users")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class User {
 
     @Id

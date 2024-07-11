@@ -1,6 +1,7 @@
 package com.sparta.sensorypeople.domain.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +10,8 @@ import lombok.NoArgsConstructor;
  * 회원탈퇴 시 사용
  */
 @Getter
-@NoArgsConstructor
-public class PasswordRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PasswordRequestDto {
 
     /**
      * 비밀번호

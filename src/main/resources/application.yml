@@ -23,3 +23,5 @@ jwt:
   refresh:
     token:
       expiration: 120960000
+      admin:
+        token: ${ADMIN_TOKEN}

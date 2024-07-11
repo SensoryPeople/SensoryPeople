@@ -64,7 +64,7 @@ public class AuthRestController {
     }
 
     @PutMapping("/withdrawal")
-    public ResponseEntity<StatusCommonResponse> withdraw(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody PasswordRequest passwordRequest) {
+    public ResponseEntity<StatusCommonResponse> withdraw(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody PasswordRequestDto passwordRequest) {
         if (userDetails == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
         }
