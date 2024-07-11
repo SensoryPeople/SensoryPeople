@@ -2,18 +2,16 @@ package com.sparta.sensorypeople.domain.user.dto;
 
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 
 /**
  * 회원가입 요청 DTO
  * 사용자 회원가입을 위한 데이터 전송 객체
  */
+
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class SignupRequestDto {
 

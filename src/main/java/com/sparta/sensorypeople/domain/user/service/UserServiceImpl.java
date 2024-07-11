@@ -9,6 +9,7 @@ import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
 import com.sparta.sensorypeople.security.util.JwtUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +22,12 @@ import java.util.Optional;
  */
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
 
     @Override
     public void signup(SignupRequestDto signupRequest) {
