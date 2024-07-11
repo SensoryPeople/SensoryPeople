@@ -6,8 +6,11 @@ import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,12 +30,14 @@ public class ColumnService {
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        int columnOrder = columnRepository.countAllByBoardId(board.getId());
         Columns column = new Columns(columnRequestDto, board);
+        column.updateOrder(columnOrder);
         columnRepository.save(column);
-        return new StatusCommonResponse(200, "컬럼 생성 완료");
+        return new StatusCommonResponse(HttpStatus.CREATED, "컬럼 생성 완료");
     }
 
-
+    @Transactional
     public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl, Long boardId, Long columnId) {
         checkUserAuth(userDetailsImpl, "delete");
 
@@ -41,10 +46,31 @@ public class ColumnService {
 
         columnRepository.delete(column);
 
-        return new StatusCommonResponse(200, "컬럼 생성 완료");
+        List<Columns> columnList = columnRepository.findByBoardIdOrderByColumnOrderAsc(boardId);
+        for (Columns columns : columnList) {
+            int count = 0;
+            columns.updateOrder(count);
+            count++;
+        }
+
+        return new StatusCommonResponse(HttpStatus.OK, "컬럼 삭제 완료");
     }
 
+    public void switchColumnOrder(UserDetailsImpl userDetailsImpl,
+                                    Long boardId,
+                                    Long columnId,
+                                    Long orderNumber) {
 
+        checkUserAuth(userDetailsImpl, "switch");
+
+        Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
+
+        double doubleOrderNumber = (double) orderNumber/2;
+        column.updateOrder(doubleOrderNumber);
+
+
+    }
 
 
     private boolean checkColumnName(String columnName, Long boardId) {
@@ -70,10 +96,17 @@ public class ColumnService {
                     throw new CustomException(ErrorCode.ACCESS_DINIED_DELETE_COLUMN);
                 }
             }
+            case "switch" -> {
+                if (!userAuth.equals(UserAuthEnum.ADMIN)) {
+                    throw new CustomException(ErrorCode.ACCESS_DINIED_SWITCH_COLUMN);
+                }
+            }
+
         }
 
         return true;
     }
+
 
 }
 

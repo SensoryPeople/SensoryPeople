@@ -22,10 +22,11 @@ public class ColumnController {
 
 
         return ResponseEntity.ok(columnService.createColumn(userDetailsImpl, columnRequestDto, boardId));
-
-
     }
 
+    /*
+    컬럼 삭제 기능
+     */
     @DeleteMapping("/{columnId}")
     public ResponseEntity<?> deleteColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @PathVariable("boardId") Long boardId,
@@ -33,9 +34,16 @@ public class ColumnController {
 
 
         return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, columnId));
-
-
     }
 
+    @PutMapping("/{columnId}/order/{orderNumber}")
+    public ResponseEntity<?> switchColumnOrder(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+                                               @PathVariable("boardId") Long boardId,
+                                               @PathVariable("columnId") Long columnId,
+                                               @PathVariable("orderNumber") Long orderNumber) {
+
+        return ResponseEntity.ok(columnService.switchColumnOrder(userDetailsImpl, boardId, columnId, orderNumber));
+
+    }
 
 }

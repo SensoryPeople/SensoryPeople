@@ -8,6 +8,6 @@ import lombok.Setter;
 public class ColumnRequestDto {
 
     private String columnName;
-    private int ColumnOrder;
+
 
 }
