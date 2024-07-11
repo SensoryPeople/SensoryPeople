@@ -8,4 +8,6 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
 
     Optional<Columns> findByColumnNameAndBoardId(String columnName, Long boardId);
+
+    Optional<Columns> findByIdAndBoardId(Long columnId, Long boardId);
 }

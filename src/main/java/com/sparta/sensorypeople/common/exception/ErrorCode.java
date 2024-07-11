@@ -2,6 +2,7 @@ package com.sparta.sensorypeople.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 @Getter
@@ -46,7 +47,9 @@ public enum ErrorCode {
 
     // 컬럼 도메인 오류 코드
     DUPLICATED_COLUMNNAME(400, "중복된 컬럼명입니다." ),
-    ACCESS_DINIED_CREATE_COLUMN(400, "컬럼 생성 권한이 없습니다." );
+    ACCESS_DINIED_CREATE_COLUMN(400, "컬럼 생성 권한이 없습니다." ),
+    COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 컬럼이 존재하지 않습니다." ),
+    ACCESS_DINIED_DELETE_COLUMN(HttpStatus.FORBIDDEN, "컬럼 삭제 권한이 없습니다." );
 
     private int status;
     private String msg;
