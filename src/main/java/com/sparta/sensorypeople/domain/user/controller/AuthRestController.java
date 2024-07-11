@@ -32,7 +32,7 @@ public class AuthRestController {
         userService.signup(signupRequestDto);
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(new StatusCommonResponse(HttpStatus.CREATED.value(), "회원가입 성공"));
+            .body(new StatusCommonResponse(HttpStatus.CREATED, "회원가입 성공"));
     }
 
     @PostMapping("/login")
@@ -45,7 +45,7 @@ public class AuthRestController {
             return ResponseEntity
                 .ok()
                 .headers(headers)
-                .body(new StatusCommonResponse(HttpStatus.OK.value(), "로그인 성공"));
+                .body(new StatusCommonResponse(HttpStatus.OK, "로그인 성공"));
         } catch (CustomException e) {
             return ResponseEntity
                 .status(e.getErrorCode().getStatus())
@@ -60,7 +60,7 @@ public class AuthRestController {
         }
         userService.logout(userDetails.getUsername());
         return ResponseEntity
-            .ok(new StatusCommonResponse(HttpStatus.OK.value(), "로그아웃 성공"));
+            .ok(new StatusCommonResponse(HttpStatus.OK, "로그아웃 성공"));
     }
 
     @PutMapping("/withdrawal")
@@ -70,7 +70,7 @@ public class AuthRestController {
         }
         userService.withdraw(userDetails.getUsername(), passwordRequest.getPassword());
         return ResponseEntity
-            .ok(new StatusCommonResponse(HttpStatus.OK.value(), "회원탈퇴 성공"));
+            .ok(new StatusCommonResponse(HttpStatus.OK, "회원탈퇴 성공"));
     }
 
     @PostMapping("/refresh")

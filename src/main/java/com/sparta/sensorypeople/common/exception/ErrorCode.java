@@ -18,6 +18,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "토큰을 찾을 수 없습니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "사용자 정보가 없습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다."),
 
     // 사용자 도메인 오류 코드
     FAIL_FIND_USER(HttpStatus.BAD_REQUEST, "해당 유저를 찾을 수 없습니다."),
