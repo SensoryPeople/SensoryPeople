@@ -5,11 +5,13 @@ import com.sparta.sensorypeople.domain.board.entity.Board;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Entity
 @Getter
 @Table(name="column")
+@NoArgsConstructor
 public class Columns {
 
     @Id
@@ -27,4 +29,9 @@ public class Columns {
     @Column(name = "column_order",nullable = false)
     private int columnOrder;
 
+    public Columns(ColumnRequestDto columnRequestDto, Board board) {
+        this.board = board;
+        this.columnName=columnRequestDto.getColumnName();
+        this.columnOrder=columnRequestDto.getColumnOrder();
+    }
 }

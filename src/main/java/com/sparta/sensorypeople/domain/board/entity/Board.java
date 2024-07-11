@@ -1,16 +1,11 @@
 package com.sparta.sensorypeople.domain.board.entity;
 
 import com.sparta.sensorypeople.common.TimeStamp;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name="boards")
+@Table(name = "boards")
 @Entity
 @Getter
 @NoArgsConstructor
@@ -22,10 +17,12 @@ public class Board extends TimeStamp {
     private Long id;
 
     @Column(nullable = false, length = 255)
-    private String name;
+    private String boardName;
 
     @Column(nullable = false, length = 255)
     private String description;
+
+
 
 
 }

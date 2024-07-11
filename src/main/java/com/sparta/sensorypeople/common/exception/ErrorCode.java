@@ -38,7 +38,15 @@ public enum ErrorCode {
     // 댓글 도메인 오류 코드
     FAIL_COMMENT(400, "댓글 내용을 입력하지 않았습니다."),
     FAIL_GETCOMMENT(400, "등록된 댓글이 없습니다."),
-    FAIL_COMMENTSELF(400, "본인 댓글에는 좋아요를 할 수 없습니다.");
+    FAIL_COMMENTSELF(400, "본인 댓글에는 좋아요를 할 수 없습니다."),
+
+    // 보드 도메인 오류 코드
+    FAIL_CREATE_BOARD(400, "생성 권한이 없습니다."),
+    BOARD_NOT_FOUND(400, "해당 보드가 존재하지 않습니다"),
+
+    // 컬럼 도메인 오류 코드
+    DUPLICATED_COLUMNNAME(400, "중복된 컬럼명입니다." ),
+    ACCESS_DINIED_CREATE_COLUMN(400, "컬럼 생성 권한이 없습니다." );
 
     private int status;
     private String msg;
