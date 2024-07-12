@@ -20,6 +20,9 @@ public class ColumnService {
     private final ColumnRepository columnRepository;
     private final BoardRepository boardRepository;
 
+    /*
+    동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 다른 트랜잭션이 아예 끼어들어올 수 없음.
+     */
     public StatusCommonResponse createColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
@@ -37,39 +40,41 @@ public class ColumnService {
         return new StatusCommonResponse(HttpStatus.CREATED, "컬럼 생성 완료");
     }
 
+    /*
+    동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 읽기는 가능.
+     */
     @Transactional
-    public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl, Long boardId, Long columnId) {
+    public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl, Long boardId, Long orderNumber) {
         checkUserAuth(userDetailsImpl, "delete");
 
-        Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
+        Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
 
         columnRepository.delete(column);
 
-        List<Columns> columnList = columnRepository.findByBoardIdOrderByColumnOrderAsc(boardId);
-        for (Columns columns : columnList) {
-            int count = 0;
-            columns.updateOrder(count);
-            count++;
-        }
+        resetColumnOrder(boardId);
 
         return new StatusCommonResponse(HttpStatus.OK, "컬럼 삭제 완료");
     }
 
+    /*
+   동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 읽기는 가능.
+    */
+    @Transactional
     public void switchColumnOrder(UserDetailsImpl userDetailsImpl,
-                                    Long boardId,
-                                    Long columnId,
-                                    Long orderNumber) {
+                                  Long boardId,
+                                  Long columnId,
+                                  Long orderNumber) {
 
         checkUserAuth(userDetailsImpl, "switch");
 
         Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
 
-        double doubleOrderNumber = (double) orderNumber/2;
+        double doubleOrderNumber = (double) orderNumber - 0.5;
         column.updateOrder(doubleOrderNumber);
-
-
+        columnRepository.save(column);
+        resetColumnOrder(boardId);
     }
 
 
@@ -101,10 +106,18 @@ public class ColumnService {
                     throw new CustomException(ErrorCode.ACCESS_DINIED_SWITCH_COLUMN);
                 }
             }
-
         }
-
         return true;
+    }
+
+    private void resetColumnOrder(Long boardId) {
+        List<Columns> columnList = columnRepository.findByBoardIdOrderByColumnOrderAsc(boardId);
+
+        int count = 0;
+        for (Columns columns : columnList) {
+            columns.updateOrder(count);
+            count++;
+        }
     }
 
 

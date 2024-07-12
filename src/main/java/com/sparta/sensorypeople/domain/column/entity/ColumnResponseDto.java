@@ -8,7 +8,7 @@ public class ColumnResponseDto {
 
     private String ColumnName;
 
-    private int ColumnOrder;
+    private Double ColumnOrder;
 
     public ColumnResponseDto(Columns column) {
         this.id=column.getId();

@@ -5,8 +5,10 @@ import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.card.entity.Card;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "column")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Columns {
 
     @Id
@@ -33,13 +35,15 @@ public class Columns {
     @Column(name = "column_order", nullable = false)
     private Double columnOrder;
 
-//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    List<Card> cardList = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Card> cardList = new ArrayList<>();
+
+    @Version
+    private Long version;
 
     public Columns(ColumnRequestDto columnRequestDto, Board board) {
         this.board = board;
         this.columnName = columnRequestDto.getColumnName();
-
     }
 
     public void updateOrder(double columnOrder) {

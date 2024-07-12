@@ -30,10 +30,10 @@ public class ColumnController {
     @DeleteMapping("/{columnId}")
     public ResponseEntity<?> deleteColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @PathVariable("boardId") Long boardId,
-                                          @PathVariable("columnId") Long columnId) {
+                                          @PathVariable("orderNumber") Long orderNumber) {
 
 
-        return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, columnId));
+        return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, orderNumber));
     }
 
     @PutMapping("/{columnId}/order/{orderNumber}")
