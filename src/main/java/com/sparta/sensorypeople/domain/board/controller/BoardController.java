@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/boards")
 @RequiredArgsConstructor
-public class BoardController {
+public class BoardController { //
 
     private BoardService boardService;
 
