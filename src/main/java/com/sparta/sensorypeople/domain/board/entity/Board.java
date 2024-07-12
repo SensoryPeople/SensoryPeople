@@ -4,8 +4,13 @@ import com.sparta.sensorypeople.common.TimeStamp;
 import jakarta.persistence.*;
 import com.sparta.sensorypeople.domain.user.entity.User;
 
+import com.sparta.sensorypeople.domain.user.entity.User;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Table(name="boards")
 @Entity
@@ -25,7 +30,7 @@ public class Board extends TimeStamp {
 
     //보드 이름
     @Column(nullable = false, length = 255)
-    private String boardName;
+    private String name;
 
     //보드 설명
     @Column(nullable = false, length = 255)

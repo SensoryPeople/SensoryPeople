@@ -37,7 +37,7 @@ public class ColumnService {
         Columns column = new Columns(columnRequestDto, board);
         column.updateOrder(columnOrder);
         columnRepository.save(column);
-        return new StatusCommonResponse(HttpStatus.CREATED, "컬럼 생성 완료");
+        return new StatusCommonResponse(HttpStatus.CREATED, column.getColumnName()+"컬럼 생성 완료");
     }
 
 
@@ -48,7 +48,7 @@ public class ColumnService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
         columnRepository.delete(column);
         resetColumnOrder(boardId);
-        return new StatusCommonResponse(HttpStatus.OK, "컬럼 삭제 완료");
+        return new StatusCommonResponse(HttpStatus.OK, column.getColumnName()+"컬럼 삭제 완료");
     }
 
     @Transactional
@@ -64,7 +64,7 @@ public class ColumnService {
         column.updateOrder(doubleOrderNumber);
         columnRepository.save(column);
         resetColumnOrder(boardId);
-        return new StatusCommonResponse(HttpStatus.OK, "컬럼 순서 변경 완료");
+        return new StatusCommonResponse(HttpStatus.OK, column.getColumnName()+"컬럼 순서를 " + orderNumber +"로 변경 완료");
     }
 
 

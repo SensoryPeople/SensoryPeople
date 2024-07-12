@@ -2,6 +2,7 @@ package com.sparta.sensorypeople.domain.column.entity;
 
 import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,9 @@ public class ColumnController {
                                           @PathVariable("boardId") Long boardId) {
 
 
-        return ResponseEntity.ok(columnService.createColumn(userDetailsImpl, columnRequestDto, boardId));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body((columnService.createColumn(userDetailsImpl, columnRequestDto, boardId)));
     }
 
     /*
@@ -36,6 +39,9 @@ public class ColumnController {
         return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, orderNumber));
     }
 
+    /*
+    컬럼 순서 변경 기능
+     */
     @PutMapping("/{columnId}/order/{orderNumber}")
     public ResponseEntity<?> switchColumnOrder(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                                @PathVariable("boardId") Long boardId,
