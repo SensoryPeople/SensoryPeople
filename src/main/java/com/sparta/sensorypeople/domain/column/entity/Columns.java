@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name="column")
+@Table(name="columns_table")
 public class Columns {
 
     @Id
