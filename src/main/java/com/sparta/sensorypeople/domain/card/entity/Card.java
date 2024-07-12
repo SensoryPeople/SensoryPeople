@@ -49,20 +49,6 @@ public class Card extends TimeStamp {
     @JoinColumn(name = "board_member_id", nullable = false)
     private BoardMember boardMember;
 
-    @Builder
-    public Card(CardRequestDto request, Columns status, Board board, User user){
-        this.name = request.getName();
-        this.deadline = request.getDeadline();
-        this.contents = request.getContents();
-        this.manager = request.getManager();
-        this.order = 1;  // 어떻게 할지 정하기
-        this.column = status;
-        this.board = board;
-        this.boardMember = new BoardMember("id","pw","email");
-
-    }
-
-
     public static Card toEntity(CardRequestDto request, Columns columns, Board board, BoardMember member) {
         return Card.builder()
             .name(request.getName())

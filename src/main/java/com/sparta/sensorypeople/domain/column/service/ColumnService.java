@@ -1,10 +1,13 @@
-package com.sparta.sensorypeople.domain.column.entity;
+package com.sparta.sensorypeople.domain.column.service;
 
 import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
+import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
+import com.sparta.sensorypeople.domain.column.entity.Columns;
+import com.sparta.sensorypeople.domain.column.repository.ColumnRepository;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;

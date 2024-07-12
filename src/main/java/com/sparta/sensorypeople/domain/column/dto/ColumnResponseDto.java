@@ -1,5 +1,9 @@
-package com.sparta.sensorypeople.domain.column.entity;
+package com.sparta.sensorypeople.domain.column.dto;
 
+import com.sparta.sensorypeople.domain.column.entity.Columns;
+import lombok.Getter;
+
+@Getter
 public class ColumnResponseDto {
 
     private Long id;

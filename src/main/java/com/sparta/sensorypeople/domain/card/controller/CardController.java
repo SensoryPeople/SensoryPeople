@@ -91,13 +91,13 @@ public class CardController {
     // 카드 순서 변경
     @Transactional
     @PatchMapping("/{cardId}/order")
-    public ResponseEntity<DataCommonResponse<CardResponseDto>> updateOrderCard(
+    public ResponseEntity<StatusCommonResponse> updateOrderCard(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(value = "move") int move,
         @PathVariable Long cardId){
 
-        CardResponseDto response = cardService.updateOrderCard(userDetails.getUser(), cardId, move);
-        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 순서 변경 완료", response), HttpStatus.OK);
+        cardService.updateOrderCard(userDetails.getUser(), cardId, move);
+        return new ResponseEntity<>(new StatusCommonResponse(HttpStatus.OK, "카드 순서 변경 완료"), HttpStatus.OK);
     }
 
     // 카드 삭제

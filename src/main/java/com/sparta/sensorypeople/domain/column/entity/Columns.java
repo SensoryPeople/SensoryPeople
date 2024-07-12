@@ -3,6 +3,7 @@ package com.sparta.sensorypeople.domain.column.entity;
 
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.card.entity.Card;
+import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 

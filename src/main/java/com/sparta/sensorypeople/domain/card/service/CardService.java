@@ -4,17 +4,18 @@ import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
+import com.sparta.sensorypeople.domain.board.entity.BoardMemberRepository;
 import com.sparta.sensorypeople.domain.board.entity.BoardRepository;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.card.entity.Card;
 import com.sparta.sensorypeople.domain.card.repository.CardRepository;
+import com.sparta.sensorypeople.domain.column.entity.ColumnRepository;
 import com.sparta.sensorypeople.domain.column.entity.Columns;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,8 @@ public class CardService {
 
     private final CardRepository cardRepository;
     private final BoardRepository boardRepository;
-    private final ColumnsRepository columnsRepository;
+    private final BoardMemberRepository boardMemberRepository;
+    private final ColumnRepository columnsRepository;
 
     public CardResponseDto createCard(CardRequestDto request
         , Long columnId, Long boardId, User user) {
@@ -33,7 +35,12 @@ public class CardService {
             () -> new CustomException(ErrorCode.BOARD_NOT_FOUND)
         );
 
-        Columns columns = columnsRepository.findById(columnId);
+        Columns columns = columnsRepository.findByIdAndBoardId(columnId, boardId).orElseThrow(
+            () -> new CustomException(ErrorCode.COLUMN_NOT_FOUND)
+        );
+
+        BoardMember user = boardMemberRepository.findBy
+
         Card card = Card.toEntity(request, columns, board, member);
         cardRepository.save(card);
         return new CardResponseDto(card);
@@ -43,13 +50,6 @@ public class CardService {
         List<Card> cards = cardRepository.findByBoardId(boardId);
         return convertToDtoList(cards);
     }
-
-    public CardResponseDto updateCard(User user, Long cardId, CardRequestDto request){
-        Card card = findById(cardId);
-        card.update(request);
-        return new CardResponseDto(card);
-    }
-
 
     public List<CardResponseDto> getManagerCard(User user, String manager, Long boardId) {
         List<Card> cards = cardRepository.findByManagerAndBoardId(manager, boardId);
@@ -61,8 +61,20 @@ public class CardService {
         return convertToDtoList(cards);
     }
 
-    public CardResponseDto updateOrderCard(User user, Long cardId, int move) {
+    public CardResponseDto updateCard(User user, Long cardId, CardRequestDto request){
+        Card card = findById(cardId);
+        if(user.equals(card.getBoardMember().getUser())) {
+            card.update(request);
+        }
+        else{
+            throw new CustomException(ErrorCode.CARD_CHANGE_PERMISSION_DENIED);
+        }
 
+        return new CardResponseDto(card);
+    }
+
+    public void updateOrderCard(User user, Long cardId, int move) {
+        // 아무나 변경 가능
     }
 
     public void deleteCard(User user, Long cardId) {
