@@ -1,5 +1,6 @@
-package com.sparta.sensorypeople.domain.column.entity;
+package com.sparta.sensorypeople.domain.column.repository;
 
+import com.sparta.sensorypeople.domain.column.entity.Columns;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
