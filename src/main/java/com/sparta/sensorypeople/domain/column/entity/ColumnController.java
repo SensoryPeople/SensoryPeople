@@ -1,6 +1,6 @@
 package com.sparta.sensorypeople.domain.column.entity;
 
-import com.sparta.sensorypeople.common.StatusCommonResponse;
+import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

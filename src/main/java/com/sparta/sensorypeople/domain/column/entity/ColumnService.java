@@ -5,6 +5,7 @@ import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
+import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -46,14 +47,10 @@ public class ColumnService {
     @Transactional
     public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl, Long boardId, Long orderNumber) {
         checkUserAuth(userDetailsImpl, "delete");
-
         Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
-
         columnRepository.delete(column);
-
         resetColumnOrder(boardId);
-
         return new StatusCommonResponse(HttpStatus.OK, "컬럼 삭제 완료");
     }
 
@@ -61,26 +58,24 @@ public class ColumnService {
    동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 읽기는 가능.
     */
     @Transactional
-    public void switchColumnOrder(UserDetailsImpl userDetailsImpl,
+    public StatusCommonResponse switchColumnOrder(UserDetailsImpl userDetailsImpl,
                                   Long boardId,
                                   Long columnId,
                                   Long orderNumber) {
 
         checkUserAuth(userDetailsImpl, "switch");
-
         Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
-
         double doubleOrderNumber = (double) orderNumber - 0.5;
         column.updateOrder(doubleOrderNumber);
         columnRepository.save(column);
         resetColumnOrder(boardId);
+        return new StatusCommonResponse(HttpStatus.OK, "컬럼 순서 변경 완료");
     }
 
 
     private boolean checkColumnName(String columnName, Long boardId) {
         Optional<Columns> columns = columnRepository.findByColumnNameAndBoardId(columnName, boardId);
-
         if (!columns.isEmpty()) {
             throw new CustomException(ErrorCode.DUPLICATED_COLUMNNAME);
         }
@@ -89,7 +84,6 @@ public class ColumnService {
 
     private boolean checkUserAuth(UserDetailsImpl userDetailsImpl, String methodType) {
         UserAuthEnum userAuth = userDetailsImpl.getUser().getUserAuth();
-
         switch (methodType) {
             case "create" -> {
                 if (!userAuth.equals(UserAuthEnum.ADMIN)) {
@@ -112,15 +106,12 @@ public class ColumnService {
 
     private void resetColumnOrder(Long boardId) {
         List<Columns> columnList = columnRepository.findByBoardIdOrderByColumnOrderAsc(boardId);
-
         int count = 0;
         for (Columns columns : columnList) {
             columns.updateOrder(count);
             count++;
         }
     }
-
-
 }
 
 

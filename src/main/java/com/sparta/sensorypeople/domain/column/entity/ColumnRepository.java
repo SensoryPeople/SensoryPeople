@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Lock;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
 

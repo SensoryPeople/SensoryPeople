@@ -2,6 +2,11 @@ package com.sparta.sensorypeople.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 사용자 정의 예외 클래스
+ * 사용자 정의 예외를 처리하는 클래스
+ */
+
 @Slf4j(topic = "CustomException:: ")
 public class CustomException extends RuntimeException{
     private ErrorCode errorCode;

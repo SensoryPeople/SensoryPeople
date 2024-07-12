@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.Lock;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "column")
+@Table(name="columns_table")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Columns {
 
