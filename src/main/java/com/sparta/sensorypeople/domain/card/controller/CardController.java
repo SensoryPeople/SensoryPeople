@@ -6,6 +6,7 @@ import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.card.service.CardService;
+import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @RestController
@@ -26,48 +26,53 @@ public class CardController {
     // 카드 생성
     @PostMapping("/status/{statusId}")
     public ResponseEntity<DataCommonResponse<CardResponseDto>> createCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestBody CardRequestDto request,
         @PathVariable(value = "statusId") Long columnId,
         @PathVariable Long boardId){
 
-        BoardMember member = new BoardMember(userPrincipal.getUser());
-        CardResponseDto response = cardService.createCard(request, columnId, boardId, member);
-        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED,"카드 등록 성공", response), HttpStatus.CREATED);
+        CardResponseDto response = cardService.createCard(request, columnId, boardId, userDetails.getUser());
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "카드 등록 성공", response), HttpStatus.CREATED);
     }
 
     // 카드 전체 조회
     @GetMapping
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getAllCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getAllCard(userPrincipal.getUser(), boardId);
+        List<CardResponseDto> response = cardService.getAllCard(userDetails.getUser(), boardId);
         if(response.isEmpty()){
-            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK,"해당 카드가 없습니다.", null), HttpStatus.OK);
+            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 카드가 없습니다.", response), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK,"카드 전체 조회 성공", response), HttpStatus.OK);
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 전체 조회 성공", response), HttpStatus.OK);
     }
 
     // 카드 작업자별 조회
     @GetMapping("/manager")
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getManagerCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(value = "manager") String manager,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getManagerCard(userPrincipal.getUser(), manager, boardId);
-        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "작업자 :" + manager + " 조회 성공", response), HttpStatus.OK);
+        List<CardResponseDto> response = cardService.getManagerCard(userDetails.getUser(), manager, boardId);
+        if(response.isEmpty()){
+            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 작업자의 카드가 없습니다.", response), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "작업자: " + manager + " 조회 성공", response), HttpStatus.OK);
     }
 
     // 카드 상태별 조회
     @GetMapping("/status")
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getStatusCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(value = "status") String status,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getStatusCard(userPrincipal.getUser(), status, boardId);
+        List<CardResponseDto> response = cardService.getStatusCard(userDetails.getUser(), status, boardId);
+        if(response.isEmpty()){
+            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드가 없습니다.", response), HttpStatus.OK);
+        }
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드 조회 성공", response), HttpStatus.OK);
     }
 
@@ -75,11 +80,11 @@ public class CardController {
     @Transactional
     @PatchMapping("/{cardId}")
     public ResponseEntity<DataCommonResponse<CardResponseDto>> updateCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestBody CardRequestDto request,
         @PathVariable Long cardId){
 
-        CardResponseDto response = cardService.updateCard(userPrincipal.getUser(), cardId, request);
+        CardResponseDto response = cardService.updateCard(userDetails.getUser(), cardId, request);
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 수정 완료", response), HttpStatus.OK);
     }
 
@@ -87,21 +92,21 @@ public class CardController {
     @Transactional
     @PatchMapping("/{cardId}/order")
     public ResponseEntity<DataCommonResponse<CardResponseDto>> updateOrderCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(value = "move") int move,
         @PathVariable Long cardId){
 
-        CardResponseDto response = cardService.updateOrderCard(userPrincipal.getUser(), cardId, move);
+        CardResponseDto response = cardService.updateOrderCard(userDetails.getUser(), cardId, move);
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 순서 변경 완료", response), HttpStatus.OK);
     }
 
     // 카드 삭제
     @DeleteMapping("/{cardId}")
     public ResponseEntity<StatusCommonResponse> deleteCard(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable Long cardId){
 
-        cardService.deleteCard(userPrincipal.getUser(), cardId);
+        cardService.deleteCard(userDetails.getUser(), cardId);
         return new ResponseEntity<>(new StatusCommonResponse(HttpStatus.NO_CONTENT, "카드 삭제 완료"), HttpStatus.NO_CONTENT);
     }
 }

@@ -36,6 +36,9 @@ public enum ErrorCode {
     NOT_FOLLOW(HttpStatus.BAD_REQUEST, "팔로우 되어있지 않은 사용자입니다."),
     BAD_FOLLOW(HttpStatus.BAD_REQUEST, "이미 팔로우한 사용자입니다."),
 
+    // 보드 도메인 오류 코드
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "보드를 찾을 수 없습니다."),
+
     // 카드 도메인 오류 코드
     CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
     CARD_NOT_USER(HttpStatus.FORBIDDEN, "해당 카드의 작성자가 아닙니다."),

@@ -65,13 +65,4 @@ public class User {
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
-    public User(String id, String pw, String name, String email, UserAuthEnum auth, String refreshToken){
-        this.loginId = id;
-        this.loginPassword=pw;
-        this.username = name;
-        this.email = email;
-        this.userAuth = auth;
-        this.refreshToken = refreshToken;
-
-    }
 }

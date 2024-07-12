@@ -25,9 +25,6 @@ public class Card extends TimeStamp {
     @Column(name = "card_name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String status;
-
     @Column(name = "contents")
     private String contents;
 
@@ -59,7 +56,6 @@ public class Card extends TimeStamp {
         this.contents = request.getContents();
         this.manager = request.getManager();
         this.order = 1;  // 어떻게 할지 정하기
-        this.status = status.getColumnName();
         this.column = status;
         this.board = board;
         this.boardMember = new BoardMember("id","pw","email");
@@ -74,7 +70,6 @@ public class Card extends TimeStamp {
             .contents(request.getContents())
             .manager(request.getManager())
             .order(1)
-            .status(columns.getColumnName())
             .column(columns)
             .board(board)
             .boardMember(member)

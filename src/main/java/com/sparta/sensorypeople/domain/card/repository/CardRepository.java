@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findById(Long cardId);
     List<Card> findByBoardId(Long boardId);
+    List<Card> findByManagerAndBoardId(String manager, Long boardId);
+    List<Card> findByColumn_ColumnNameAndBoardId(String columnName, Long boardId);
+
 }

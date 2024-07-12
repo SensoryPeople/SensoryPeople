@@ -4,6 +4,7 @@ import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
+import com.sparta.sensorypeople.domain.board.entity.BoardRepository;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.card.entity.Card;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +27,12 @@ public class CardService {
     private final ColumnsRepository columnsRepository;
 
     public CardResponseDto createCard(CardRequestDto request
-        , Long columnId, Long boardId, BoardMember member) {
+        , Long columnId, Long boardId, User user) {
 
-        Board board = boardRepository.findById(boardId);
+        Board board = boardRepository.findById(boardId).orElseThrow(
+            () -> new CustomException(ErrorCode.BOARD_NOT_FOUND)
+        );
+
         Columns columns = columnsRepository.findById(columnId);
         Card card = Card.toEntity(request, columns, board, member);
         cardRepository.save(card);
@@ -36,8 +41,7 @@ public class CardService {
 
     public List<CardResponseDto> getAllCard(User user, Long boardId){
         List<Card> cards = cardRepository.findByBoardId(boardId);
-
-        return changeDto(cards);
+        return convertToDtoList(cards);
     }
 
     public CardResponseDto updateCard(User user, Long cardId, CardRequestDto request){
@@ -48,12 +52,18 @@ public class CardService {
 
 
     public List<CardResponseDto> getManagerCard(User user, String manager, Long boardId) {
-
+        List<Card> cards = cardRepository.findByManagerAndBoardId(manager, boardId);
+        return convertToDtoList(cards);
     }
 
-    public List<CardResponseDto> getStatusCard(User user, String status, Long boardId) {}
+    public List<CardResponseDto> getStatusCard(User user, String status, Long boardId) {
+        List<Card> cards = cardRepository.findByColumn_ColumnNameAndBoardId(status, boardId);
+        return convertToDtoList(cards);
+    }
 
-    public CardResponseDto updateOrderCard(User user, Long cardId, int move) {}
+    public CardResponseDto updateOrderCard(User user, Long cardId, int move) {
+
+    }
 
     public void deleteCard(User user, Long cardId) {
         Card card = findById(cardId);
@@ -65,16 +75,10 @@ public class CardService {
         }
     }
 
-    private List<CardResponseDto> changeDto(List<Card> cards) {
-        if(cards.isEmpty()){
-            return null;
-        }
-
-        List<CardResponseDto> cardList = new ArrayList<>();
-        for(Card card : cards){
-            cardList.add(new CardResponseDto(card));
-        }
-        return cardList;
+    private List<CardResponseDto> convertToDtoList(List<Card> cards) {
+        return cards.stream()
+            .map(CardResponseDto::new)
+            .collect(Collectors.toList());
     }
 
     private Card findById(Long cardId){
@@ -83,4 +87,8 @@ public class CardService {
         );
     }
 
+    // 보드에 접근 가능한 회원인지 확인하기
+    private BoardMember validAcess(User user, Long BoardId){
+
+    }
 }
