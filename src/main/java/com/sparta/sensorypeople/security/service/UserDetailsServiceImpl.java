@@ -1,4 +1,4 @@
-package com.sparta.sensorypeople.domain.user.service;
+package com.sparta.sensorypeople.security.service;
 
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;

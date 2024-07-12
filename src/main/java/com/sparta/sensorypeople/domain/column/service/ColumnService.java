@@ -9,7 +9,7 @@ import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import com.sparta.sensorypeople.domain.column.entity.Columns;
 import com.sparta.sensorypeople.domain.column.repository.ColumnRepository;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
-import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
+import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
