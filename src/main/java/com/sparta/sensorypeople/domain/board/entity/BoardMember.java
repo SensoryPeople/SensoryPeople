@@ -2,14 +2,7 @@ package com.sparta.sensorypeople.domain.board.entity;
 
 import com.sparta.sensorypeople.common.TimeStamp;
 import com.sparta.sensorypeople.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,11 +23,15 @@ public class BoardMember extends TimeStamp {
     @ManyToOne
     @JoinColumn(name="user_id", nullable = false)
     private User user;
-    
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String role;
+    private BoardRoleEnum role;
 
 
-
-
+    public BoardMember(Board board, User findUser, BoardRoleEnum role) {
+        this.board = board;
+        this.user = findUser;
+        this.role = role;
+    }
 }
