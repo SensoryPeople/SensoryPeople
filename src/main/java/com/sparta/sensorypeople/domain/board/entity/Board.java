@@ -1,6 +1,9 @@
 package com.sparta.sensorypeople.domain.board.entity;
 
 import com.sparta.sensorypeople.common.TimeStamp;
+import jakarta.persistence.*;
+import com.sparta.sensorypeople.domain.user.entity.User;
+
 import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,6 +35,8 @@ public class Board extends TimeStamp {
     //보드 설명
     @Column(nullable = false, length = 255)
     private String description;
+
+
 
 
 }

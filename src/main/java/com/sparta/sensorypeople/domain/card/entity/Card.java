@@ -43,6 +43,4 @@ public class Card extends TimeStamp {
     @JoinColumn(name = "board_member_id", nullable = false)
     private BoardMember boardMember;
 
-
-
 }
