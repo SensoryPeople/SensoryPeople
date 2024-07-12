@@ -4,6 +4,7 @@ import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,7 @@ public class ColumnService {
     private final ColumnRepository columnRepository;
     private final BoardRepository boardRepository;
 
-    /*
-    동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 다른 트랜잭션이 아예 끼어들어올 수 없음.
-     */
+
     public StatusCommonResponse createColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
@@ -41,9 +40,7 @@ public class ColumnService {
         return new StatusCommonResponse(HttpStatus.CREATED, "컬럼 생성 완료");
     }
 
-    /*
-    동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 읽기는 가능.
-     */
+
     @Transactional
     public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl, Long boardId, Long orderNumber) {
         checkUserAuth(userDetailsImpl, "delete");
@@ -54,9 +51,6 @@ public class ColumnService {
         return new StatusCommonResponse(HttpStatus.OK, "컬럼 삭제 완료");
     }
 
-    /*
-   동시성제어 : 먼저 들어온 트랜잭션이 작업을 수행 중일 때 읽기는 가능.
-    */
     @Transactional
     public StatusCommonResponse switchColumnOrder(UserDetailsImpl userDetailsImpl,
                                   Long boardId,
@@ -75,7 +69,8 @@ public class ColumnService {
 
 
     private boolean checkColumnName(String columnName, Long boardId) {
-        Optional<Columns> columns = columnRepository.findByColumnNameAndBoardId(columnName, boardId);
+        Optional<Columns> columns = columnRepository
+                .findByColumnNameAndBoardId(columnName, boardId);
         if (!columns.isEmpty()) {
             throw new CustomException(ErrorCode.DUPLICATED_COLUMNNAME);
         }

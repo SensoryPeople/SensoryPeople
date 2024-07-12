@@ -21,6 +21,7 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
     @Lock(LockModeType.OPTIMISTIC)
     List<Columns> findByBoardIdOrderByColumnOrderAsc(Long boardId);
 
+    @Lock(LockModeType.OPTIMISTIC)
     int countAllByBoardId(Long id);
 
 }
