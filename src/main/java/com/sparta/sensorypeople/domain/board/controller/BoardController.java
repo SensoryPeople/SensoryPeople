@@ -1,13 +1,15 @@
 package com.sparta.sensorypeople.domain.board.controller;
 
-import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.board.dto.BoardRequestDto;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
+import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.board.service.BoardMemberService;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
+import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 public class BoardController {
 
     private BoardService boardService;
-
+    private BoardMemberService boardMemberService;
 
      //모든 보드 조회 요청 처리
 
@@ -88,6 +90,17 @@ public class BoardController {
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetails userDetails) {
         boardService.deleteBoard(boardId, userDetails.getUsername());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // 보드 초대 - 어드민 기능
+    @PostMapping("/{boardId}/invite")
+    public ResponseEntity<StatusCommonResponse> inviteUser(Long boardId,
+                                                           String username,
+                                                           String role,
+                                                           UserDetailsImpl userDetails){
+        boardMemberService.inviteUser(boardId, username, role, userDetails.getUser());
+        return ResponseEntity
+            .ok(new StatusCommonResponse(HttpStatus.OK, "보드 초대 성공"));
     }
 
 }
