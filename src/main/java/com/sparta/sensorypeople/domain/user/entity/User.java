@@ -38,4 +38,13 @@ public class User {
     @Column(nullable = false, length = 255, unique = true)
     private String refreshToken;
 
+    public User(String id, String pw, String name, String email, UserAuthEnum auth, String refreshToken){
+        this.loginId = id;
+        this.loginPassword=pw;
+        this.username = name;
+        this.email = email;
+        this.userAuth = auth;
+        this.refreshToken = refreshToken;
+
+    }
 }

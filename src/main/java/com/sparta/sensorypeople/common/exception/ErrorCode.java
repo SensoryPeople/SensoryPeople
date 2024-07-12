@@ -28,11 +28,10 @@ public enum ErrorCode {
     SOCIAL_TOKEN_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "해당하는 소셜 유저 토큰을 가져오는데 실패했습니다."),
     SOCIAL_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 소셜 유저 데이터를 가져오는데 실패했습니다."),
 
-    // 게시글 도메인 오류 코드
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
-    POST_NOT_USER(HttpStatus.FORBIDDEN, "해당 게시글의 작성자가 아닙니다."),
-    POST_SAME_USER(HttpStatus.FORBIDDEN, "해당 게시글의 작성자입니다."),
-    POST_EMPTY(HttpStatus.NO_CONTENT, "먼저 작성하여 소식을 알려보세요!"),
+    // 카드 도메인 오류 코드
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
+    CARD_NOT_USER(HttpStatus.FORBIDDEN, "해당 카드의 작성자가 아닙니다."),
+    CARD_SAME_USER(HttpStatus.FORBIDDEN, "해당 카드의 작성자입니다."),
 
     // 댓글 도메인 오류 코드
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),

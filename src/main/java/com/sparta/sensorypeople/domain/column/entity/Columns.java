@@ -4,11 +4,14 @@ package com.sparta.sensorypeople.domain.column.entity;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name="column")
 public class Columns {
 
