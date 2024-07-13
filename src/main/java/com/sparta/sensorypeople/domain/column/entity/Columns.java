@@ -37,12 +37,13 @@ public class Columns {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Card> cardList = new ArrayList<>();
 
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
 
     public Columns(ColumnRequestDto columnRequestDto, Board board) {
         this.board = board;
         this.columnName = columnRequestDto.getColumnName();
+        this.columnOrder = 0d;
     }
 
     public void updateOrder(double columnOrder) {
