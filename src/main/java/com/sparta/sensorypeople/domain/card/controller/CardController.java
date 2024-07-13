@@ -5,7 +5,7 @@ import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.card.service.CardService;
-import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
+import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
