@@ -38,7 +38,7 @@ public class User {
     @Column(nullable = false)
     private UserAuthEnum userAuth;
 
-    @Column(nullable = false, length = 255, unique = true)
+    @Column(nullable = false, length = 255)
     private String refreshToken = "";
 
     @Builder
