@@ -32,4 +32,9 @@ public class Board extends TimeStamp {
     private String description;
 
 
+    public void update(String name, String description, User user) {
+        this.name = name;
+        this.description = description;
+        this.user = user;
+    }
 }
