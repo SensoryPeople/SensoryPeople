@@ -2,7 +2,6 @@ package com.sparta.sensorypeople.domain.board.entity;
 
 import com.sparta.sensorypeople.common.TimeStamp;
 import com.sparta.sensorypeople.domain.user.entity.User;
-import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,9 +27,12 @@ public class BoardMember extends TimeStamp {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private UserAuthEnum role;
+    private BoardRoleEnum role;
 
 
-
-
+    public BoardMember(Board board, User findUser, BoardRoleEnum role) {
+        this.board = board;
+        this.user = findUser;
+        this.role = role;
+    }
 }
