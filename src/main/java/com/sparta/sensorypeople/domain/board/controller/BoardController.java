@@ -6,7 +6,7 @@ import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.dto.MemberRequestDto;
 import com.sparta.sensorypeople.domain.board.service.BoardMemberService;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
-import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
+import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

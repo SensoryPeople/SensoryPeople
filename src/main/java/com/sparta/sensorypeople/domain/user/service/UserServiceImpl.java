@@ -49,9 +49,6 @@ public class UserServiceImpl implements UserService {
             ""
         );
 
-        String refreshToken = jwtUtil.createRefreshToken(user.getLoginId());
-        user.updateRefreshToken(refreshToken);
-
         userRepository.save(user);
     }
 
@@ -59,16 +56,12 @@ public class UserServiceImpl implements UserService {
     public TokenResponseDto login(LoginRequestDto loginRequest) {
         User user = userRepository.findByLoginId(loginRequest.getUserId())
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getLoginPassword())) {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        String accessToken = jwtUtil.createAccessToken(user.getLoginId());
-        String refreshToken = jwtUtil.createRefreshToken(user.getLoginId());
-        user.updateRefreshToken(refreshToken);
-        userRepository.save(user);
-
-        return new TokenResponseDto(accessToken, refreshToken);
+        return createAndSaveTokens(user);
     }
 
     @Override
@@ -96,12 +89,19 @@ public class UserServiceImpl implements UserService {
             .filter(u -> u.getRefreshToken().equals(refreshToken))
             .orElseThrow(() -> new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED));
 
+        return createAndSaveTokens(user);
+    }
+
+    private TokenResponseDto createAndSaveTokens(User user) {
         String newAccessToken = jwtUtil.createAccessToken(user.getLoginId());
         String newRefreshToken = jwtUtil.createRefreshToken(user.getLoginId());
 
         user.updateRefreshToken(newRefreshToken);
         userRepository.save(user);
 
-        return new TokenResponseDto(newAccessToken, newRefreshToken);
+        return TokenResponseDto.builder()
+            .accessToken(newAccessToken)
+            .refreshToken(newRefreshToken)
+            .build();
     }
 }
