@@ -2,7 +2,7 @@ package com.sparta.sensorypeople.domain.column.controller;
 
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
-import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
+import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
