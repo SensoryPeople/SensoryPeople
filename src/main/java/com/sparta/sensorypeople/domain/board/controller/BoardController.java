@@ -31,12 +31,14 @@ public class BoardController {
         return ResponseEntity.ok(boardResponseDto);
     }
 
+    // ID로 보드 조회 요청 처리
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable Long boardId) {
         BoardResponseDto boardResponseDto = boardService.getBoardById(boardId);
         return ResponseEntity.ok(boardResponseDto);
     }
 
+    // 새 보드 생성 요청 처리
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -45,6 +47,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(boardResponseDto);
     }
 
+    // 게시물 수정 요청 처리
     @PatchMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId,
                                                         @RequestBody BoardRequestDto boardRequestDto,
