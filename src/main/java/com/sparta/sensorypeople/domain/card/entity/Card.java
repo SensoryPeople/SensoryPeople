@@ -50,13 +50,13 @@ public class Card extends TimeStamp {
     @JoinColumn(name = "board_member_id", nullable = false)
     private BoardMember boardMember;
 
-    public static Card toEntity(CardRequestDto request, Columns columns, Board board, BoardMember member) {
+    public static Card toEntity(CardRequestDto request, Columns columns, Board board, BoardMember member, int order) {
         return Card.builder()
             .name(request.getName())
             .deadline(request.getDeadline())
             .contents(request.getContents())
             .manager(request.getManager())
-            .order(1)
+            .order(order)
             .column(columns)
             .board(board)
             .boardMember(member)

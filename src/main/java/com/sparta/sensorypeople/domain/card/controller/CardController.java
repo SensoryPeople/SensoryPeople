@@ -5,7 +5,7 @@ import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.card.service.CardService;
-import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
+import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +42,7 @@ public class CardController {
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getAllCard(userDetails.getUser(), boardId);
+        List<CardResponseDto> response = cardService.getAllCards(userDetails.getUser(), boardId);
         if(response.isEmpty()){
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 카드가 없습니다.", response), HttpStatus.OK);
         }
@@ -57,7 +57,7 @@ public class CardController {
         @RequestParam(value = "manager", defaultValue = "") String manager,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getManagerCard(userDetails.getUser(), manager, boardId);
+        List<CardResponseDto> response = cardService.getManagerCards(userDetails.getUser(), manager, boardId);
         if(response.isEmpty()){
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 작업자의 카드가 없습니다.", response), HttpStatus.OK);
         }
@@ -72,7 +72,7 @@ public class CardController {
         @RequestParam(value = "status") String status,
         @PathVariable Long boardId){
 
-        List<CardResponseDto> response = cardService.getStatusCard(userDetails.getUser(), status, boardId);
+        List<CardResponseDto> response = cardService.getStatusCards(userDetails.getUser(), status, boardId);
         if(response.isEmpty()){
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드가 없습니다.", response), HttpStatus.OK);
         }
