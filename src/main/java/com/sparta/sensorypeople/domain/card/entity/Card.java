@@ -34,6 +34,7 @@ public class Card extends TimeStamp {
     @Column(name = "manager")
     private String manager;
 
+    @Setter
     @Column(name = "card_order", nullable = false)
     private int order;
 
@@ -67,5 +68,9 @@ public class Card extends TimeStamp {
         this.deadline = request.getDeadline();
         this.manager = request.getManager();
         this.name = request.getName();
+    }
+
+    public void updateColumn(Columns targetColumn) {
+        this.column = targetColumn;
     }
 }

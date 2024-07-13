@@ -13,5 +13,5 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findByBoardId(Long boardId);
     List<Card> findByManagerAndBoardId(String manager, Long boardId);
     List<Card> findByColumn_ColumnNameAndBoardId(String columnName, Long boardId);
-
+    List<Card> findByColumnIdAndBoardId(Long columnId, Long boardId);
 }

@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class CardResponseDto {
     private String name;
 
@@ -19,10 +18,9 @@ public class CardResponseDto {
     private String manager;
 
     public CardResponseDto(Card card){
-        CardResponseDto.builder()
-            .name(card.getName())
-            .contents(card.getContents())
-            .deadline(card.getDeadline())
-            .build();
+        this.name = card.getName();
+        this.contents = card.getContents();
+        this.deadline = card.getDeadline();
+        this.manager = card.getManager();
     }
 }
