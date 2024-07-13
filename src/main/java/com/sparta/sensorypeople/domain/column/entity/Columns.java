@@ -4,12 +4,8 @@ package com.sparta.sensorypeople.domain.column.entity;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.card.entity.Card;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +13,10 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name="columns_table")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@Table(name="columns_table")
 public class Columns {
 
     @Id
@@ -39,12 +37,13 @@ public class Columns {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Card> cardList = new ArrayList<>();
 
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
 
     public Columns(ColumnRequestDto columnRequestDto, Board board) {
         this.board = board;
         this.columnName = columnRequestDto.getColumnName();
+        this.columnOrder = 0d;
     }
 
     public void updateOrder(double columnOrder) {

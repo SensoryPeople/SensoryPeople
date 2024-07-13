@@ -1,30 +1,82 @@
 package com.sparta.sensorypeople.domain.board.service;
 
+import com.sparta.sensorypeople.common.exception.CustomException;
+import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
+import com.sparta.sensorypeople.domain.user.entity.User;
+import com.sparta.sensorypeople.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-// Board 엔티티에 대한 비즈니스 로직을 처리하는 서비스 클래스
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class BoardService {
 
+    private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
+    private final BoardMemberService boardMemberService;
 
-public interface BoardService {
+    @Transactional(readOnly = true)
+    public List<BoardResponseDto> getAllBoards() {
+        List<Board> boards = boardRepository.findAll();
+        return boards.stream()
+            .map(this::mapBoardToResponseDto)
+            .collect(Collectors.toList());
+    }
 
+    @Transactional(readOnly = true)
+    public BoardResponseDto getBoardById(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        return mapBoardToResponseDto(board);
+    }
 
-    List<Board> getAllBoards();
+    @Transactional
+    public BoardResponseDto createBoard(String name, String description, String username) {
+        log.info(name);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-    // ID로 게시물 조회
-    Board getBoardById(Long id);
+        Board board = Board.builder()
+            .name(name)
+            .description(description)
+            .user(user)
+            .build();
 
-    // 새 게시물 생성
-    Board createBoard(String title, String content,String username);
+        boardRepository.save(board);
+        boardMemberService.initBoardMember(board, user);
+        return mapBoardToResponseDto(board);
+    }
 
-    // 게시물 수정
-    Board updateBoard(Long id, String title, String content, String username);
+    @Transactional
+    public BoardResponseDto updateBoard(Long boardId, String name, String description, String username) {
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-    // 게시물 삭제
-    void deleteBoard(Long id, String username);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-    // 모든 게시물 삭제
-    void deleteAllBoards();
+        board.update(name, description, user);
 
+        boardRepository.save(board);
+
+        return mapBoardToResponseDto(board);
+    }
+
+    private BoardResponseDto mapBoardToResponseDto(Board board) {
+        return BoardResponseDto.builder()
+            .id(board.getId())
+            .name(board.getName())
+            .description(board.getDescription())
+            .author(board.getUser().getUsername())
+            .build();
+    }
 }

@@ -36,11 +36,17 @@ public enum ErrorCode {
     NOT_FOLLOW(HttpStatus.BAD_REQUEST, "팔로우 되어있지 않은 사용자입니다."),
     BAD_FOLLOW(HttpStatus.BAD_REQUEST, "이미 팔로우한 사용자입니다."),
 
-    // 게시글 도메인 오류 코드
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
-    POST_NOT_USER(HttpStatus.FORBIDDEN, "해당 게시글의 작성자가 아닙니다."),
-    POST_SAME_USER(HttpStatus.FORBIDDEN, "해당 게시글의 작성자입니다."),
-    POST_EMPTY(HttpStatus.NO_CONTENT, "먼저 작성하여 소식을 알려보세요!"),
+    // 보드 도메인 오류 코드
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "보드를 찾을 수 없습니다."),
+
+    // 카드 도메인 오류 코드
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
+    CARD_NOT_OWNER(HttpStatus.FORBIDDEN, "해당 카드의 작성자가 아닙니다."),
+    CARD_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "카드 삭제 권한이 없습니다."),
+    CARD_CREATE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "카드 생성 권한이 없습니다."),
+    CARD_CHANGE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "카드 변경 권한이 없습니다."),
+    CARD_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "카드 업데이트 실패."),
+    CARD_DELETE_FAILED(HttpStatus.BAD_REQUEST, "카드 삭제 실패."),
 
     // 댓글 도메인 오류 코드
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
@@ -50,7 +56,6 @@ public enum ErrorCode {
     // 컬럼 도메인 오류 코드
     COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 컬럼이 존재하지 않습니다." ),
     ACCESS_DINIED_DELETE_COLUMN(HttpStatus.FORBIDDEN, "컬럼 삭제 권한이 없습니다." ),
-    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "보드를 찾을 수 없습니다."),
     DUPLICATED_COLUMNNAME(HttpStatus.BAD_REQUEST, "중복된 컬럼명입니다."),
     ACCESS_DINIED_CREATE_COLUMN(HttpStatus.FORBIDDEN, "컬럼 생성 권한이 없습니다." ),
     ACCESS_DINIED_SWITCH_COLUMN(HttpStatus.FORBIDDEN, "컬럼 순서 변경 권한이 없습니다."),

@@ -1,6 +1,5 @@
 package com.sparta.sensorypeople.security.filter;
 
-import com.sparta.sensorypeople.domain.user.service.UserDetailsServiceImpl;
 import com.sparta.sensorypeople.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

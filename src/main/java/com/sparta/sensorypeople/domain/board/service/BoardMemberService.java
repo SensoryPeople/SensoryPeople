@@ -24,7 +24,7 @@ public class BoardMemberService {
     public BoardMember inviteUser(Long boardId, String username, String role, User user){
 
         // 초대 권한 확인
-        BoardMember existMember = boardMemberRepository.findBoardMemberBy(username,boardId).orElseThrow(
+        BoardMember existMember = boardMemberRepository.findBoardMemberBy(user.getUsername(), boardId).orElseThrow(
             () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         UserAuthEnum userAuth = user.getUserAuth();
@@ -52,5 +52,11 @@ public class BoardMemberService {
         BoardMember boardMember = new BoardMember(board, findUser, userRole);
         boardMemberRepository.save(boardMember);
         return boardMember;
+    }
+
+    public void initBoardMember(Board board, User user){
+
+        BoardMember boardMember = new BoardMember(board, user, BoardRoleEnum.MANAGER);
+        boardMemberRepository.save(boardMember);
     }
 }

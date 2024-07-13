@@ -1,21 +1,16 @@
 package com.sparta.sensorypeople.domain.board.entity;
 
 import com.sparta.sensorypeople.common.TimeStamp;
-import jakarta.persistence.*;
-import com.sparta.sensorypeople.domain.user.entity.User;
-
 import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.*;
 
 @Table(name="boards")
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Board extends TimeStamp {
 
     //기본키
@@ -37,6 +32,9 @@ public class Board extends TimeStamp {
     private String description;
 
 
-
-
+    public void update(String name, String description, User user) {
+        this.name = name;
+        this.description = description;
+        this.user = user;
+    }
 }

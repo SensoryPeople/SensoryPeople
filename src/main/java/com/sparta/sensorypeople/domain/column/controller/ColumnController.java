@@ -2,6 +2,7 @@ package com.sparta.sensorypeople.domain.column.controller;
 
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
+import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,14 +11,16 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/board/{boardId}/columns")
+@RequestMapping("/boards/{boardId}/columns")
 @RequiredArgsConstructor
 public class ColumnController {
+
     private final ColumnService columnService;
 
     /*
     컬럼 생성 기능
      */
+
     @PostMapping
     public ResponseEntity<?> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @RequestBody ColumnRequestDto columnRequestDto,

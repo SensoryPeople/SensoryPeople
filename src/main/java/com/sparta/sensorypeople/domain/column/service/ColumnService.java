@@ -31,12 +31,15 @@ public class ColumnService {
             ColumnRequestDto columnRequestDto,
             Long boardId) {
 
-        checkUserAuth(userDetailsImpl, "create");
+        if(!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)){
+            throw new CustomException(ErrorCode.ACCESS_DINIED_CREATE_COLUMN);
+        }
+
         checkColumnName(columnRequestDto.getColumnName(), boardId);
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
-        int columnOrder = columnRepository.countAllByBoardId(board.getId());
+        int columnOrder = columnRepository.countAllByBoardId(boardId);
         Columns column = new Columns(columnRequestDto, board);
         column.updateOrder(columnOrder);
         columnRepository.save(column);
