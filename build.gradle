@@ -37,6 +37,12 @@ dependencies {
 	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+	runtimeOnly 'com.h2database:h2'
+
+	//redisson 의존성 추가
+	//implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+
 }
 
 tasks.named('test') {

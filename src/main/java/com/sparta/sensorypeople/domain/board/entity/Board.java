@@ -3,15 +3,15 @@ package com.sparta.sensorypeople.domain.board.entity;
 import com.sparta.sensorypeople.common.TimeStamp;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Table(name = "boards")
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Board extends TimeStamp {
 
     // 기본키
@@ -34,6 +34,13 @@ public class Board extends TimeStamp {
 
     // 생성자
     public Board(String name, String description, User user) {
+        this.name = name;
+        this.description = description;
+        this.user = user;
+    }
+
+    // 업데이트 메서드
+    public void update(String name, String description, User user) {
         this.name = name;
         this.description = description;
         this.user = user;

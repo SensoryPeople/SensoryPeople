@@ -25,3 +25,4 @@ public class BoardResponseDto {
         this.modifiedAt=modifiedAt;
     }
 }
+

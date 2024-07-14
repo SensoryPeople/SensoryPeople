@@ -14,7 +14,6 @@ import lombok.*;
 @Table(name="users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class User {
 
     @Id
@@ -39,8 +38,19 @@ public class User {
     @Column(nullable = false)
     private UserAuthEnum userAuth;
 
-    @Column(nullable = false, length = 255, unique = true)
+    @Column(nullable = false, length = 255)
     private String refreshToken = "";
+
+    @Builder
+    public User(Long id, String loginId, String loginPassword, String username, String email, UserAuthEnum userAuth, String refreshToken) {
+        this.id = id;
+        this.loginId = loginId;
+        this.loginPassword = loginPassword;
+        this.username = username;
+        this.email = email;
+        this.userAuth = userAuth;
+        this.refreshToken = refreshToken;
+    }
 
     public void updateLoginId(String loginId) {
         this.loginId = loginId;

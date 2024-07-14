@@ -1,5 +1,6 @@
 package com.sparta.sensorypeople.common;
 
+import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

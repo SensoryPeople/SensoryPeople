@@ -1,75 +1,89 @@
 package com.sparta.sensorypeople.domain.board.service;
 
+import com.sparta.sensorypeople.common.exception.CustomException;
+import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final BoardMemberService boardMemberService;
 
+    @Transactional(readOnly = true)
     public List<BoardResponseDto> getAllBoards() {
-        return boardRepository.findAll().stream()
-                .map(board -> BoardResponseDto.builder()
-                        .id(board.getId())
-                        .name(board.getName())
-                        .description(board.getDescription())
-                        .author(board.getUser().getUsername())
-                        .build())
-                .collect(Collectors.toList());
+        List<Board> boards = boardRepository.findAll();
+        return boards.stream()
+            .map(this::mapBoardToResponseDto)
+            .collect(Collectors.toList());
     }
 
-    public BoardResponseDto getBoardById(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
-        return BoardResponseDto.builder()
-                .id(board.getId())
-                .name(board.getName())
-                .description(board.getDescription())
-                .author(board.getUser().getUsername())
-                .build();
+    @Transactional(readOnly = true)
+    public BoardResponseDto getBoardById(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        return mapBoardToResponseDto(board);
     }
 
+    @Transactional
     public BoardResponseDto createBoard(String name, String description, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Board board = new Board(name, description, user);
+        log.info(name);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Board board = Board.builder()
+            .name(name)
+            .description(description)
+            .user(user)
+            .build();
+
         boardRepository.save(board);
-        return BoardResponseDto.builder()
-                .id(board.getId())
-                .name(board.getName())
-                .description(board.getDescription())
-                .author(board.getUser().getUsername())
-                .build();
+        boardMemberService.initBoardMember(board, user);
+        return mapBoardToResponseDto(board);
     }
 
-    public BoardResponseDto updateBoard(Long id, String name, String description, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
-        board.setName(name);
-        board.setDescription(description);
+    @Transactional
+    public BoardResponseDto updateBoard(Long boardId, String name, String description, String username) {
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        board.update(name, description, user);
         boardRepository.save(board);
+
+        return mapBoardToResponseDto(board);
+    }
+
+    private BoardResponseDto mapBoardToResponseDto(Board board) {
         return BoardResponseDto.builder()
-                .id(board.getId())
-                .name(board.getName())
-                .description(board.getDescription())
-                .author(board.getUser().getUsername())
-                .build();
+            .id(board.getId())
+            .name(board.getName())
+            .description(board.getDescription())
+            .author(board.getUser().getUsername())
+            .build();
     }
 
     public void deleteBoard(Long id, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Board board = boardRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
         boardRepository.delete(board);
     }
 

@@ -32,5 +32,5 @@ public class SignupRequestDto {
 
     private UserAuthEnum userAuth;
 
-    private String adminToken;
+    private String adminToken="";
 }
