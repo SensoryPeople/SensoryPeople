@@ -31,6 +31,9 @@ public class Board extends TimeStamp {
     @Column(nullable = false, length = 255)
     private String description;
 
+    @Version
+    private Long version;
+
 
     public void update(String name, String description, User user) {
         this.name = name;

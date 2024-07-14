@@ -37,8 +37,8 @@ public class Columns {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cardList = new ArrayList<>();
 
-//    @Version
-//    private Long version;
+    @Version
+    private Long version;
 
     public Columns(ColumnRequestDto columnRequestDto, Board board) {
         this.board = board;

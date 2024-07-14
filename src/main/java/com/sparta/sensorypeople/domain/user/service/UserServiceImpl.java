@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * UserServiceImpl 클래스
@@ -33,8 +34,9 @@ public class UserServiceImpl implements UserService {
     private String adminToken;
 
     @Override
-    public void signup(SignupRequestDto signupRequest) {
-        Optional<User> existingUser = userRepository.findByLoginId(signupRequest.getUserId());
+    @Transactional
+    public User signup(SignupRequestDto signupRequest) {
+        Optional<User> existingUser = userRepository.findByLoginIdForSignup(signupRequest.getUserId());
         if (existingUser.isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_USER);
         }
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService {
         );
 
         userRepository.save(user);
+        return user;
     }
 
     @Override

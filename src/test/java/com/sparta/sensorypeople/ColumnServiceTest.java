@@ -67,14 +67,16 @@ class ColumnServiceTest {
         for (int i = 0; i < threadCount; i++) {
             int finalI = i;
             futures.add(executorService.submit(() -> {
-                try {
-                    System.out.println(finalI + "번째 thread 접근 시작");
-                    return columnService.createColumn(userDetails, columnRequestDto, boardId);
-                } finally {
-                    System.out.println(finalI + "번째 thread 접근 종료");
-                    latch.countDown();
-                }
-            }));
+                                try {
+                                    System.out.println(finalI + "번째 thread 접근 시작");
+                                    return columnService.createColumn(userDetails, columnRequestDto, boardId);
+                                } finally {
+                                    System.out.println(finalI + "번째 thread 접근 종료");
+                                    latch.countDown();
+                                }
+                            }
+                    )
+            );
         }
 
         latch.await();
@@ -94,7 +96,8 @@ class ColumnServiceTest {
         System.out.println("=====================");
         System.out.println("sout " + futures.size());
         System.out.println("=====================");
-    }}
+    }
+}
 
 //    @Test
 //    @DisplayName("컬럼 생성 테스트")

@@ -58,7 +58,7 @@ public class CardService {
     }
 
     public CardResponseDto updateCard(User user, Long cardId, CardRequestDto request) {
-        Card card = findCardById(cardId);
+        Card card = findCardByIdForUpdate(cardId);
         if (isCardOwner(card, user)) {
             card.update(request);
             return new CardResponseDto(card);
@@ -127,6 +127,11 @@ public class CardService {
         return cards.stream()
             .map(CardResponseDto::new)
             .collect(Collectors.toList());
+    }
+
+    private Card findCardByIdForUpdate(Long cardId) {
+        return cardRepository.findByIdForUpdateCard(cardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
     }
 
     private Card findCardById(Long cardId) {
