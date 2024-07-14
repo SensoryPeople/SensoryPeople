@@ -35,7 +35,7 @@ public class Columns {
     private Double columnOrder;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Card> cardList = new ArrayList<>();
+    private List<Card> cardList = new ArrayList<>();
 
 //    @Version
 //    private Long version;

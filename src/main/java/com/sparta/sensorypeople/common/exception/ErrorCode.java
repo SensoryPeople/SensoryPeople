@@ -61,7 +61,12 @@ public enum ErrorCode {
     ACCESS_DINIED_SWITCH_COLUMN(HttpStatus.FORBIDDEN, "컬럼 순서 변경 권한이 없습니다."),
 
     // 보드멤버 도메인 오류 코드
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버는 존재하지 않습니다." );
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버는 존재하지 않습니다." ),
+
+
+    // redisson 관련 오류 코드
+    INTERUPTEDEXCEPTION(HttpStatus.BAD_REQUEST, "쓰레드가 인터럽트 되었습니다."),
+    LOCK_NOT_AVAILABLE(HttpStatus.FORBIDDEN, "락을 획득하지 못했습니다." );
 
 
     private final HttpStatus status;

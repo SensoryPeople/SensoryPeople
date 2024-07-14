@@ -41,7 +41,7 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 
 	//redisson 의존성 추가
-	//implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+	implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
 
 }
 

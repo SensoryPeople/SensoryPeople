@@ -19,6 +19,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      password : 123456789@
 
 jwt:
   secret:
