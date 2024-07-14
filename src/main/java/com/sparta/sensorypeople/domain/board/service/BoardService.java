@@ -1,30 +1,79 @@
 package com.sparta.sensorypeople.domain.board.service;
 
+import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
+import com.sparta.sensorypeople.domain.user.entity.User;
+import com.sparta.sensorypeople.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-// Board 엔티티에 대한 비즈니스 로직을 처리하는 서비스 클래스
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class BoardService {
 
+    private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
 
-public interface BoardService {
+    public List<BoardResponseDto> getAllBoards() {
+        return boardRepository.findAll().stream()
+                .map(board -> BoardResponseDto.builder()
+                        .id(board.getId())
+                        .name(board.getName())
+                        .description(board.getDescription())
+                        .author(board.getUser().getUsername())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
+    public BoardResponseDto getBoardById(Long id) {
+        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
+        return BoardResponseDto.builder()
+                .id(board.getId())
+                .name(board.getName())
+                .description(board.getDescription())
+                .author(board.getUser().getUsername())
+                .build();
+    }
 
-    List<Board> getAllBoards();
+    public BoardResponseDto createBoard(String name, String description, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Board board = new Board(name, description, user);
+        boardRepository.save(board);
+        return BoardResponseDto.builder()
+                .id(board.getId())
+                .name(board.getName())
+                .description(board.getDescription())
+                .author(board.getUser().getUsername())
+                .build();
+    }
 
-    // ID로 게시물 조회
-    Board getBoardById(Long id);
+    public BoardResponseDto updateBoard(Long id, String name, String description, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
+        board.setName(name);
+        board.setDescription(description);
+        boardRepository.save(board);
+        return BoardResponseDto.builder()
+                .id(board.getId())
+                .name(board.getName())
+                .description(board.getDescription())
+                .author(board.getUser().getUsername())
+                .build();
+    }
 
-    // 새 게시물 생성
-    Board createBoard(String title, String content,String username);
+    public void deleteBoard(Long id, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Board not found"));
+        boardRepository.delete(board);
+    }
 
-    // 게시물 수정
-    Board updateBoard(Long id, String title, String content, String username);
-
-    // 게시물 삭제
-    void deleteBoard(Long id, String username);
-
-    // 모든 게시물 삭제
-    void deleteAllBoards();
-
+    public void deleteAllBoards() {
+        boardRepository.deleteAll();
+    }
 }
