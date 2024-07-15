@@ -9,6 +9,7 @@ import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,19 +24,20 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final BoardMemberService boardMemberService;
+    private final int maxRetries = 10;
 
     @Transactional(readOnly = true)
     public List<BoardResponseDto> getAllBoards() {
         List<Board> boards = boardRepository.findAll();
         return boards.stream()
-            .map(this::mapBoardToResponseDto)
-            .collect(Collectors.toList());
+                .map(this::mapBoardToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public BoardResponseDto getBoardById(Long boardId) {
         Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
         return mapBoardToResponseDto(board);
     }
 
@@ -43,13 +45,13 @@ public class BoardService {
     public BoardResponseDto createBoard(String name, String description, String username) {
         log.info(name);
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Board board = Board.builder()
-            .name(name)
-            .description(description)
-            .user(user)
-            .build();
+                .name(name)
+                .description(description)
+                .user(user)
+                .build();
 
         boardRepository.save(board);
         boardMemberService.initBoardMember(board, user);
@@ -58,11 +60,13 @@ public class BoardService {
 
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, String name, String description, String username) {
+
+
         Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         board.update(name, description, user);
         boardRepository.save(board);
@@ -70,13 +74,45 @@ public class BoardService {
         return mapBoardToResponseDto(board);
     }
 
+    /*
+    보드 업데이트 메서드 동시성 제어 버전
+     */
+    @Transactional
+    public BoardResponseDto CCupdateBoard(Long boardId, String name, String description, String username) {
+
+        int attempts = 0;
+
+        while (attempts < maxRetries) {
+            try {
+
+                Board board = boardRepository.findById(boardId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+                board.update(name, description, user);
+
+                boardRepository.save(board);
+
+
+                return mapBoardToResponseDto(board);
+            } catch (ObjectOptimisticLockingFailureException e) {
+                attempts++;
+            }
+        }
+
+            throw new CustomException(ErrorCode.FAIL_UPDATE_BOARD);
+
+    }
+
     private BoardResponseDto mapBoardToResponseDto(Board board) {
         return BoardResponseDto.builder()
-            .id(board.getId())
-            .name(board.getName())
-            .description(board.getDescription())
-            .author(board.getUser().getUsername())
-            .build();
+                .id(board.getId())
+                .name(board.getName())
+                .description(board.getDescription())
+                .author(board.getUser().getUsername())
+                .build();
     }
 
     public void deleteBoard(Long id, String username) {

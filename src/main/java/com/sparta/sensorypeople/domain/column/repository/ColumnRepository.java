@@ -11,18 +11,29 @@ import java.util.Optional;
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
     /*
-    LockModeType.OPTIMISTIC은 entity 조회만 해도 버전을 체크함. 따라서 한번 조회한 엔티티가 트랜잭션 동안 변경되지 않음.
+   컬럼을 생성 하는 동안 다른 트랜잭션이 들어와 race condition이 발생하는 것을 방지하기 위해 X-Lock 사용
+    트랜잭션 1이 select -> commit 하는 사이에 트랜잭션 2가 select를 하면 중복값 검증이 제대로 이루어지지 않을 수 있음.
      */
-    //@Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Columns> findByColumnNameAndBoardId(String columnName, Long boardId);
 
-    //@Lock(LockModeType.OPTIMISTIC)
+    /*
+ 컬럼을 삭제 하는 동안 다른 트랜잭션이 들어와 race condition이 발생하는 것을 방지하기 위해 X-Lock 사용
+  트랜잭션 1이 select -> commit 하는 사이에 트랜잭션 2가 select를 하면 중복값 검증이 제대로 이루어지지 않을 수 있음.
+   */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Columns> findByIdAndBoardId(Long columnId, Long boardId);
 
-    //@Lock(LockModeType.OPTIMISTIC)
+    /*
+    해당 쿼리를 사용하는 메서드에 X-LOCK이 걸려있으므로 별도의 db lock 설정하지 않음.
+     */
     List<Columns> findByBoardIdOrderByColumnOrderAsc(Long boardId);
 
-    //@Lock(LockModeType.OPTIMISTIC)
+    /*
+  컬럼을 생성 하는 동안 다른 트랜잭션이 들어와 race condition이 발생하는 것을 방지하기 위해 X-Lock 사용
+   트랜잭션 1이 select -> commit 하는 사이에 트랜잭션 2가 count를 하면 중복된 order가 설정될 수 있음
+    */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     int countAllByBoardId(Long id);
 
 }

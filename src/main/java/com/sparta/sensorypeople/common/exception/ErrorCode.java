@@ -38,6 +38,7 @@ public enum ErrorCode {
 
     // 보드 도메인 오류 코드
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "보드를 찾을 수 없습니다."),
+    FAIL_UPDATE_BOARD(HttpStatus.FORBIDDEN, "보드 업데이트에 실패 했습니다."),
 
     // 카드 도메인 오류 코드
     CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
@@ -59,9 +60,17 @@ public enum ErrorCode {
     DUPLICATED_COLUMNNAME(HttpStatus.BAD_REQUEST, "중복된 컬럼명입니다."),
     ACCESS_DINIED_CREATE_COLUMN(HttpStatus.FORBIDDEN, "컬럼 생성 권한이 없습니다." ),
     ACCESS_DINIED_SWITCH_COLUMN(HttpStatus.FORBIDDEN, "컬럼 순서 변경 권한이 없습니다."),
+    FAIL_SWITCH_COLUMNORDER(HttpStatus.BAD_REQUEST, "컬럼 순서 변경에 실패하였습니다."),
 
     // 보드멤버 도메인 오류 코드
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버는 존재하지 않습니다." );
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버는 존재하지 않습니다." ),
+
+
+    // redisson 관련 오류 코드
+    INTERUPTEDEXCEPTION(HttpStatus.BAD_REQUEST, "쓰레드가 인터럽트 되었습니다."),
+    LOCK_NOT_AVAILABLE(HttpStatus.FORBIDDEN, "락을 획득하지 못했습니다." );
+
+
 
 
     private final HttpStatus status;

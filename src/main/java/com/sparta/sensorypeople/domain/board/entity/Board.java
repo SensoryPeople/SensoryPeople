@@ -5,7 +5,7 @@ import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Table(name = "boards")
+@Table(name="boards")
 @Entity
 @Getter
 @Setter
@@ -31,6 +31,9 @@ public class Board extends TimeStamp {
     // 보드 설명
     @Column(nullable = false, length = 255)
     private String description;
+
+    @Version
+    private Long version;
 
     // 생성자
     public Board(String name, String description, User user) {

@@ -3,6 +3,7 @@ package com.sparta.sensorypeople.domain.user.service;
 import com.sparta.sensorypeople.domain.user.dto.LoginRequestDto;
 import com.sparta.sensorypeople.domain.user.dto.SignupRequestDto;
 import com.sparta.sensorypeople.domain.user.dto.TokenResponseDto;
+import com.sparta.sensorypeople.domain.user.entity.User;
 
 /**
  * UserService 인터페이스
@@ -11,7 +12,7 @@ import com.sparta.sensorypeople.domain.user.dto.TokenResponseDto;
 public interface UserService {
 
 
-    void signup(SignupRequestDto signupRequest);
+    User signup(SignupRequestDto signupRequest);
 
 
     TokenResponseDto login(LoginRequestDto loginRequest);
