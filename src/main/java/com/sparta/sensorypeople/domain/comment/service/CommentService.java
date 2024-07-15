@@ -3,6 +3,8 @@ package com.sparta.sensorypeople.domain.comment.service;
 
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.common.redisson.RedissonConfig;
+import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
 import com.sparta.sensorypeople.domain.card.entity.Card;
@@ -14,6 +16,8 @@ import com.sparta.sensorypeople.domain.comment.repository.CommentRepository;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +30,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CardService cardService;
     private final BoardService boardService;
+    private final RedissonClient redissonClient;
+    private final String lockName = "comment";
 
     // 댓글 작성
     public CommentResponseDto createComment(Long cardId, CommentRequestDto requestDto, User user) {
@@ -43,20 +49,39 @@ public class CommentService {
     public List<CommentResponseDto> getComments(Long cardId) {
         Card card = cardService.findCardById(cardId);
         return card.getComments().stream()
-            .map(CommentResponseDto::new)
-            .collect(Collectors.toList());
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     // 댓글 수정
     @Transactional
     public CommentResponseDto updateComment(Long cardId, Long commentId, CommentRequestDto requestDto, User user) {
-        cardService.findCardById(cardId);
-        Comment comment = findCommentById(commentId);
 
-        isValidUser(comment, user);
-        comment.updateComment(requestDto);
+        RLock rLock = redissonClient.getLock(lockName);
 
-        return new CommentResponseDto(comment);
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+
+                try {
+
+                    cardService.findCardById(cardId);
+                    Comment comment = findCommentById(commentId);
+
+                    isValidUser(comment, user);
+                    comment.updateComment(requestDto);
+
+                    return new CommentResponseDto(comment);
+
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return null;
     }
 
     // 댓글 삭제
@@ -73,7 +98,7 @@ public class CommentService {
 
     private Comment findCommentById(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(() ->
-            new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+                new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     private void isValidUser(Comment comment, User user) {

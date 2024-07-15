@@ -2,6 +2,8 @@ package com.sparta.sensorypeople.domain.card.service;
 
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.common.redisson.RedissonConfig;
+import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
@@ -14,10 +16,13 @@ import com.sparta.sensorypeople.domain.column.service.ColumnService;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +31,43 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardService boardService;
     private final ColumnService columnService;
+    private final RedissonClient redissonClient;
+    private final String lockName = "card";
 
     // 카드 생성
     public CardResponseDto createCard(CardRequestDto request, Long boardId, Long columnId, User user) {
-        Board board = boardService.findByBoardId(boardId);
-        Columns column = columnService.findColumnByIdAndBoardId(columnId, boardId);
-        BoardMember member = boardService.validMember(user, boardId);
-        int order = cardRepository.countByColumnIdAndBoardId(columnId, boardId);
 
-        Card card = Card.toEntity(request, column, board, member, order);
-        cardRepository.save(card);
-        return new CardResponseDto(card);
+
+        RLock rLock = redissonClient.getLock(lockName);
+
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+
+                try {
+
+                    Board board = boardService.findByBoardId(boardId);
+                    Columns column = columnService.findColumnByIdAndBoardId(columnId, boardId);
+                    BoardMember member = boardService.validMember(user, boardId);
+                    int order = cardRepository.countByColumnIdAndBoardId(columnId, boardId);
+
+                    Card card = Card.toEntity(request, column, board, member, order);
+                    cardRepository.save(card);
+                    return new CardResponseDto(card);
+
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+
+            Thread.currentThread().interrupt();
+
+        }
+
+        return null;
+
     }
 
     // 모든 카드 조회
@@ -61,31 +92,69 @@ public class CardService {
     }
 
     // 카드 업데이트
+    @Transactional
     public CardResponseDto updateCard(Long cardId, CardRequestDto request, User user) {
-        Card card = findCardByIdForUpdate(cardId);
-        if (isCardOwner(card, user)) {
-            card.update(request);
-            return new CardResponseDto(card);
-        } else {
-            throw new CustomException(ErrorCode.CARD_CHANGE_PERMISSION_DENIED);
+
+        RLock rLock = redissonClient.getLock(lockName);
+
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+
+                try {
+
+                    Card card = findCardByIdForUpdate(cardId);
+                    if (isCardOwner(card, user)) {
+                        card.update(request);
+                        return new CardResponseDto(card);
+                    } else {
+                        throw new CustomException(ErrorCode.CARD_CHANGE_PERMISSION_DENIED);
+                    }
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return null;
     }
 
     // 카드 순서 업데이트
     @Transactional
     public void updateOrderCard(Long cardId, Long boardId, Long targetColumnId, int targetPosition, User user) {
-        Card card = findCardById(cardId);
-        boardService.validMember(user, boardId);
-        Columns targetColumn = columnService.findColumnByIdAndBoardId(targetColumnId, boardId);
-        Long currentColumnId = card.getColumn().getId();
 
-        if (currentColumnId.equals(targetColumnId)) {
-            reorderCardsInColumn(cardRepository.findByColumnIdAndBoardId(currentColumnId, boardId), card, targetPosition);
-        } else {
-            moveCardToDifferentColumn(card, currentColumnId, targetColumnId, boardId, targetPosition);
-            card.updateColumn(targetColumn);
+        RLock rLock = redissonClient.getLock(lockName);
+
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+
+                try {
+
+                    Card card = findCardById(cardId);
+                    boardService.validMember(user, boardId);
+                    Columns targetColumn = columnService.findColumnByIdAndBoardId(targetColumnId, boardId);
+                    Long currentColumnId = card.getColumn().getId();
+
+                    if (currentColumnId.equals(targetColumnId)) {
+                        reorderCardsInColumn(cardRepository.findByColumnIdAndBoardId(currentColumnId, boardId), card, targetPosition);
+                    } else {
+                        moveCardToDifferentColumn(card, currentColumnId, targetColumnId, boardId, targetPosition);
+                        card.updateColumn(targetColumn);
+                    }
+                    cardRepository.save(card);
+
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        cardRepository.save(card);
+
     }
 
     // 카드 삭제
@@ -136,20 +205,20 @@ public class CardService {
     // 카드 엔티티 리스트를 DTO 리스트로 변환
     private List<CardResponseDto> convertToDtoList(List<Card> cards) {
         return cards.stream()
-            .map(CardResponseDto::new)
-            .collect(Collectors.toList());
+                .map(CardResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     // 업데이트를 위한 카드 조회
     private Card findCardByIdForUpdate(Long cardId) {
         return cardRepository.findByIdForUpdateCard(cardId)
-            .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
     }
 
     // 카드 조회
     public Card findCardById(Long cardId) {
         return cardRepository.findById(cardId)
-            .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
     }
 
     // 카드 소유자 확인

@@ -2,6 +2,7 @@ package com.sparta.sensorypeople.domain.column.controller;
 
 import com.sparta.sensorypeople.common.DataCommonResponse;
 import com.sparta.sensorypeople.common.StatusCommonResponse;
+import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
@@ -28,8 +29,8 @@ public class ColumnController {
 
     @PostMapping
     public ResponseEntity<DataCommonResponse<ColumnResponseDto>> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-                                          @RequestBody ColumnRequestDto columnRequestDto,
-                                          @PathVariable("boardId") Long boardId) {
+                                                                              @RequestBody ColumnRequestDto columnRequestDto,
+                                                                              @PathVariable("boardId") Long boardId) throws InterruptedException {
 
         ColumnResponseDto response = columnService.createColumn(userDetailsImpl, columnRequestDto, boardId);
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "컬럼 등록 성공", response), HttpStatus.CREATED);
@@ -44,14 +45,15 @@ public class ColumnController {
                                           @PathVariable("columnId") Long columnId) {
 
 
-        return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, columnId));
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "컬럼 삭제 성공", columnService.deleteColumn(userDetailsImpl, boardId, columnId)), HttpStatus.OK);
+
     }
 
     @Transactional
     @GetMapping
     public ResponseEntity<DataCommonResponse<List<ColumnResponseDto>>> getAllCard(
-        @PathVariable Long boardId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         List<ColumnResponseDto> response = columnService.getAllColumns(boardId, userDetails.getUser());
         if (response.isEmpty()) {
