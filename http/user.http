@@ -1,1 +1,61 @@
-### 1. 회원가입
+### 1. 어드민 회원가입
+POST /users/signup HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 187
+
+{
+  "userId" : "qwe8bfas1",
+  "password" : "aAsdswewq!!324",
+  "userName" : "홍길동",
+  "email" : "honggill@naver.com",
+  "adminToken" : "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC"
+}
+
+### 2. 어드민 로그인
+POST /users/login HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 68
+
+{
+  "userId" : "qwe8bfas1",
+  "password" : "aAsdswewq!!324"
+}
+
+> {%
+    client.global.set("Authorization", response.headers.valueOf("Authorization"));
+%}
+
+### 카드 작업자별 조회
+GET /boards/1/cards/manager?manager=John Doe HTTP/1.1
+Host: localhost:8080
+Authorization: {{Authorization}}
+
+
+### 보드 생성
+POST /api/boards HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: {{Authorization}}
+Content-Length: 54
+
+{
+  "name" : "1번째 보드",
+  "description" : "설명"
+}
+
+
+### 카드 드로그앤드롭
+PATCH /boards/1/cards/3 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: {{Authorization}}
+Content-Length: 130
+
+{
+"name" : "카드 수정",
+"contents" : "이부분 수정 부탁드립니다~",
+"deadline": "2024-07-20T12:00:00",
+"manager": "John Doe"
+}
