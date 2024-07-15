@@ -37,10 +37,10 @@ public class ColumnController {
     @DeleteMapping("/{columnId}")
     public ResponseEntity<?> deleteColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @PathVariable("boardId") Long boardId,
-                                          @PathVariable("orderNumber") Long orderNumber) {
+                                          @PathVariable("columnId") Long columnId) {
 
 
-        return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, orderNumber));
+        return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, columnId));
     }
 
     /*
