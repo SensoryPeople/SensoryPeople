@@ -69,14 +69,14 @@ public class CardController {
     @GetMapping("/status")
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getStatusCard(
         @PathVariable Long boardId,
-        @RequestParam(value = "status") String status,
+        @RequestParam(value = "columnId") Long columnId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        List<CardResponseDto> response = cardService.getStatusCards(boardId, status, userDetails.getUser());
+        List<CardResponseDto> response = cardService.getStatusCards(boardId, columnId, userDetails.getUser());
         if (response.isEmpty()) {
-            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드가 없습니다.", response), HttpStatus.OK);
+            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, columnId + " 상태의 카드가 없습니다.", response), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드 조회 성공", response), HttpStatus.OK);
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, columnId + " 상태의 카드 조회 성공", response), HttpStatus.OK);
     }
 
     // 카드 수정

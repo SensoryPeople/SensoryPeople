@@ -85,9 +85,9 @@ public class CardService {
     }
 
     // 상태별 카드 조회
-    public List<CardResponseDto> getStatusCards(Long boardId, String status, User user) {
+    public List<CardResponseDto> getStatusCards(Long boardId, Long columnId, User user) {
         boardService.validMember(user, boardId);
-        List<Card> cards = cardRepository.findByColumn_ColumnNameAndBoardId(status, boardId);
+        List<Card> cards = cardRepository.findByColumnIdAndBoardId(columnId, boardId);
         return convertToDtoList(cards);
     }
 
