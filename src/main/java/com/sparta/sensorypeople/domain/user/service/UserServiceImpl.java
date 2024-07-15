@@ -107,4 +107,10 @@ public class UserServiceImpl implements UserService {
             .refreshToken(newRefreshToken)
             .build();
     }
+
+    @Override
+    public User findByUsername(String username){
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }
