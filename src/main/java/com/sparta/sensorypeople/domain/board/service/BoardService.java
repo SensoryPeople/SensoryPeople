@@ -69,7 +69,6 @@ public class BoardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         board.update(name, description, user);
-
         boardRepository.save(board);
 
         return mapBoardToResponseDto(board);
@@ -114,5 +113,17 @@ public class BoardService {
                 .description(board.getDescription())
                 .author(board.getUser().getUsername())
                 .build();
+    }
+
+    public void deleteBoard(Long id, String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Board board = boardRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        boardRepository.delete(board);
+    }
+
+    public void deleteAllBoards() {
+        boardRepository.deleteAll();
     }
 }
