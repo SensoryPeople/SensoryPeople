@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardMemberRepository extends JpaRepository<BoardMember, Long> {
-    List<BoardMember> findByBoardId(Long boardId);
 
     // User ID와 Board ID로 BoardMember 조회
     @Query("SELECT bm FROM BoardMember bm WHERE bm.user.username = :userName AND bm.board.id = :boardId")
