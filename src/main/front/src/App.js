@@ -18,7 +18,7 @@ const App = () => {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/boardlist" element={<BoardList />} />
           <Route path="/kanban" element={<KanbanBoard />} />
-          <Route path="/boardmember" element={<BoardMember />} />
+          <Route path="/boards/:boardId/members" element={<BoardMember />} /> {/* 동적 경로 설정 */}
           <Route path="/cardcomments" element={<CardComments />} /> {/* CardComments 컴포넌트 라우팅 추가 */}
         </Routes>
       </Router>

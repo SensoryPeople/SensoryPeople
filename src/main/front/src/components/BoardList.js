@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './BoardList.css';
 
@@ -6,6 +7,7 @@ const BoardList = () => {
   const [boards, setBoards] = useState([]);
   const [newBoardName, setNewBoardName] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBoards();
@@ -13,12 +15,12 @@ const BoardList = () => {
 
   const fetchBoards = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
       if (!token) {
         console.error('No token found in sessionStorage');
         return;
       }
-      const response = await axios.get('/api/boards', {
+      const response = await axios.get('/boards', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -32,13 +34,13 @@ const BoardList = () => {
   const addBoard = async () => {
     if (newBoardName.trim()) {
       try {
-        const token = sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
         if (!token) {
           setMessage('로그인이 필요합니다.');
           return;
         }
 
-        const response = await axios.post('/api/boards', {
+        const response = await axios.post('/boards', {
           name: newBoardName.trim(),
           description: '새 보드입니다.', // 예시로 고정된 값을 넣었습니다.
         }, {
@@ -60,13 +62,13 @@ const BoardList = () => {
     const newTitle = window.prompt('보드 이름 수정:', boards[index].name);
     if (newTitle !== null && newTitle.trim() !== '') {
       try {
-        const token = sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
         if (!token) {
           setMessage('로그인이 필요합니다.');
           return;
         }
 
-        const response = await axios.patch(`/api/boards/${boardId}`, {
+        const response = await axios.patch(`/boards/${boardId}`, {
           name: newTitle.trim(),
           description: boards[index].description,
         }, {
@@ -87,13 +89,13 @@ const BoardList = () => {
   const deleteBoard = async (boardId, index) => {
     if (window.confirm('이 보드를 삭제하시겠습니까?')) {
       try {
-        const token = sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
         if (!token) {
           setMessage('로그인이 필요합니다.');
           return;
         }
 
-        await axios.delete(`/api/boards/${boardId}`, {
+        await axios.delete(`/boards/${boardId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -107,6 +109,7 @@ const BoardList = () => {
 
   const viewBoard = (boardName) => {
     alert(`${boardName} 보드를 조회합니다.`);
+    navigate('/boards/:boardId/members');
   };
 
   return (
