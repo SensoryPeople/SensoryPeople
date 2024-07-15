@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.IntStream;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -84,6 +85,25 @@ class UserServiceImplTest {
 
 
         System.out.println(userRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("회원가입 동시성 제어 테스트")
+    @Transactional
+    void test2() throws InterruptedException {
+        SignupRequestDto signupRequestDto = SignupRequestDto.builder()
+                .userId("testuserid1")
+                .password("testPassword!")
+                .userName("testusername")
+                .email("test@test.com")
+                .userAuth(UserAuthEnum.USER)
+                .adminToken("")
+                .build();
+
+        IntStream.range(0, 100).parallel().forEach(i-> userServiceImpl.signup(signupRequestDto));
+
+        System.out.println(userRepository.findAll().size());
+
     }
 
 
