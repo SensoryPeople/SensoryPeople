@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class MemberRequestDto {
     String userName;
-    String userRole;
+    String userRole = "USER";
 }

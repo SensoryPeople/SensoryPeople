@@ -1,9 +1,11 @@
 package com.sparta.sensorypeople.domain.board.controller;
 
+import com.sparta.sensorypeople.common.DataCommonResponse;
 import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.board.dto.BoardRequestDto;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.dto.MemberRequestDto;
+import com.sparta.sensorypeople.domain.board.dto.MemberResponseDto;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
 import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -70,5 +72,13 @@ public class BoardController {
                 memberRequestDto.getUserRole(), userDetails.getUser());
         return ResponseEntity
                 .ok(new StatusCommonResponse(HttpStatus.OK, "보드 초대 성공"));
+    }
+
+    @GetMapping("/{boardId}/members")
+    public ResponseEntity<DataCommonResponse<List<MemberResponseDto>>> getMembers(@PathVariable Long boardId,
+                                                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
+        List<MemberResponseDto> response = boardService.getMembers(boardId, userDetails.getUser());
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK,
+            "보드 멤버 조회 성공", response), HttpStatus.OK);
     }
 }

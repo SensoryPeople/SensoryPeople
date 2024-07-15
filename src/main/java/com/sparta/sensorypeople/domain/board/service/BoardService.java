@@ -3,11 +3,13 @@ package com.sparta.sensorypeople.domain.board.service;
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
+import com.sparta.sensorypeople.domain.board.dto.MemberResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.board.entity.BoardRoleEnum;
 import com.sparta.sensorypeople.domain.board.repository.BoardMemberRepository;
 import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
+import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
@@ -106,7 +108,7 @@ public class BoardService {
     @Transactional
     public BoardMember inviteUser(Long boardId, String username, String role, User user) {
         // 초대 권한 확인
-        validateInvitePermission(user, boardId);
+        isValidManager(user, boardId);
 
         // 중복 체크
         checkDuplicateMember(username, boardId);
@@ -122,13 +124,18 @@ public class BoardService {
         return boardMember;
     }
 
-    private void validateInvitePermission(User user, Long boardId) {
-        BoardMember existMember = validMember(user, boardId);
-        UserAuthEnum userAuth = user.getUserAuth();
+    public List<MemberResponseDto> getMembers(Long boardId, User user) {
+        isValidManager(user, boardId);
+        return boardMemberRepository.findByBoardId(boardId).stream()
+            .map(MemberResponseDto::new)
+            .collect(Collectors.toList());
+    }
 
-        // 어드민이 아니고, 매니저가 아닐 경우
-        if (!userAuth.equals(UserAuthEnum.ADMIN) || !existMember.getRole().equals(BoardRoleEnum.MANAGER)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
+    private void isValidManager(User user, Long boardId) {
+        BoardMember member = validMember(user, boardId);
+
+        if(member.getRole().equals(BoardRoleEnum.USER)){
+            throw new CustomException(ErrorCode.MEMBER_NO_INVITE_PERMISSION);
         }
     }
 

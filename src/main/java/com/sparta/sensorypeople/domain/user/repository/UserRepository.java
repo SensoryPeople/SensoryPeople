@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-/*
+    /*
     이하 충돌할 일이 없을 것으로 생각되어 동시성 제어 구현하지 않음.
      */
 

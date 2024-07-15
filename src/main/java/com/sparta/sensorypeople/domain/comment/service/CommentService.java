@@ -3,6 +3,7 @@ package com.sparta.sensorypeople.domain.comment.service;
 
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
 import com.sparta.sensorypeople.domain.card.entity.Card;
@@ -49,6 +50,7 @@ public class CommentService {
 
     // 댓글 수정
     @Transactional
+    @RedissonLock("comment")
     public CommentResponseDto updateComment(Long cardId, Long commentId, CommentRequestDto requestDto, User user) {
         cardService.findCardById(cardId);
         Comment comment = findCommentById(commentId);
@@ -61,6 +63,7 @@ public class CommentService {
 
     // 댓글 삭제
     @Transactional
+    @RedissonLock("comment")
     public void deleteComment(Long cardId, Long commentId, User user) {
         Card card = cardService.findCardById(cardId);
         Comment comment = findCommentById(commentId);

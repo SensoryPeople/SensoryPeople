@@ -1,13 +1,19 @@
 package com.sparta.sensorypeople.domain.column.controller;
 
+import com.sparta.sensorypeople.common.DataCommonResponse;
+import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
+import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
 import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/boards/{boardId}/columns")
@@ -21,14 +27,12 @@ public class ColumnController {
      */
 
     @PostMapping
-    public ResponseEntity<?> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+    public ResponseEntity<DataCommonResponse<ColumnResponseDto>> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @RequestBody ColumnRequestDto columnRequestDto,
                                           @PathVariable("boardId") Long boardId) {
 
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body((columnService.createColumn(userDetailsImpl, columnRequestDto, boardId)));
+        ColumnResponseDto response = columnService.createColumn(userDetailsImpl, columnRequestDto, boardId);
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "컬럼 등록 성공", response), HttpStatus.CREATED);
     }
 
     /*
@@ -41,6 +45,19 @@ public class ColumnController {
 
 
         return ResponseEntity.ok(columnService.deleteColumn(userDetailsImpl, boardId, columnId));
+    }
+
+    @Transactional
+    @GetMapping
+    public ResponseEntity<DataCommonResponse<List<ColumnResponseDto>>> getAllCard(
+        @PathVariable Long boardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        List<ColumnResponseDto> response = columnService.getAllColumns(boardId, userDetails.getUser());
+        if (response.isEmpty()) {
+            return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 카드가 없습니다.", response), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 전체 조회 성공", response), HttpStatus.OK);
     }
 
     /*

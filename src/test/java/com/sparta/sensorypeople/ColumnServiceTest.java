@@ -3,6 +3,7 @@ package com.sparta.sensorypeople;
 import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
+import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
 import com.sparta.sensorypeople.domain.column.repository.ColumnRepository;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
 import com.sparta.sensorypeople.domain.user.entity.User;
@@ -62,18 +63,17 @@ class ColumnServiceTest {
         Long boardId = 2L;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
-        List<Future<StatusCommonResponse>> futures = new ArrayList<>();
+        List<Future<ColumnResponseDto>> futures = new ArrayList<>();
 
         //when
-
         for (int i = 0; i < threadCount; i++) {
             int finalI = i;
             futures.add(executorService.submit(() -> {
                                 try {
-//                                    System.out.println(finalI + "번째 thread 접근 시작");
+                                    System.out.println(finalI + "번째 thread 접근 시작");
                                     return columnService.createColumn(userDetails, columnRequestDto, boardId);
                                 } finally {
-//                                    System.out.println(finalI + "번째 thread 접근 종료");
+                                    System.out.println(finalI + "번째 thread 접근 종료");
                                     latch.countDown();
                                 }
                             }
@@ -149,74 +149,3 @@ class ColumnServiceTest {
 
 
 
-//    @Test
-//    @DisplayName("컬럼 생성 테스트")
-//    @Transactional
-//    void test2() throws InterruptedException {
-//        //given
-//        int threadCount = 5;
-//        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-//        ColumnRequestDto columnRequestDto = new ColumnRequestDto("testColumnName1");
-//        Long boardId = 1L;
-//        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-//        CountDownLatch latch = new CountDownLatch(threadCount);
-//        List<Future<StatusCommonResponse>> futures = new ArrayList<>();
-//
-//        //when
-//
-//        for (int i = 0; i < threadCount; i++) {
-//            int finalI = i;
-//            futures.add(executorService.submit(() -> {
-//                try {
-//                    System.out.println(finalI + "번째 thread 접근 시작");
-//                    return columnService.redissonCreateColumn(userDetails, columnRequestDto, boardId);
-//                } finally {
-//                    System.out.println(finalI + "번째 thread 접근 종료");
-//                    latch.countDown();
-//                }
-//            }));
-//        }
-//
-//        latch.await();
-//
-//        long successCount = futures.stream()
-//                .filter(future -> {
-//                    try {
-//                        return future.get() != null;
-//                    } catch (Exception e) {
-//                        return false;
-//                    }
-//                })
-//                .count();
-//
-//        //then
-//        System.out.println(successCount);
-//        System.out.println("=====================");
-//        System.out.println("sout " + futures.size());
-//        System.out.println("=====================");
-//    }
-//
-//}
-
-
-//    @Test
-//    @DisplayName("컬럼 생성 테스트:동시성제어")
-//    @Transactional
-//    void test2() {
-//        //given
-//        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-//        ColumnRequestDto columnRequestDto = new ColumnRequestDto("testColumnName");
-//        Long boardId = 1L;
-//        ExecutorService excutorService = Executors.newFixedThreadPool(1);
-//
-//
-//        //when
-//        for(int i =0; i<5; i++){
-//            excutorService.execute(() ->columnService.createColumn(userDetails, columnRequestDto, boardId));
-//        }
-//
-//
-//        //then
-//        System.out.println(columnRepository.count());
-//
-//    }

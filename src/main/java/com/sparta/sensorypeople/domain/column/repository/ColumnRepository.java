@@ -36,4 +36,7 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     int countAllByBoardId(Long id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Columns> findByBoardId(Long boardId);
+
 }

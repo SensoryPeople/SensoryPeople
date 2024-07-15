@@ -2,6 +2,7 @@ package com.sparta.sensorypeople.domain.card.service;
 
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
@@ -61,6 +62,8 @@ public class CardService {
     }
 
     // 카드 업데이트
+    @Transactional
+    @RedissonLock("card")
     public CardResponseDto updateCard(Long cardId, CardRequestDto request, User user) {
         Card card = findCardByIdForUpdate(cardId);
         if (isCardOwner(card, user)) {
@@ -73,6 +76,7 @@ public class CardService {
 
     // 카드 순서 업데이트
     @Transactional
+    @RedissonLock("card")
     public void updateOrderCard(Long cardId, Long boardId, Long targetColumnId, int targetPosition, User user) {
         Card card = findCardById(cardId);
         boardService.validMember(user, boardId);
