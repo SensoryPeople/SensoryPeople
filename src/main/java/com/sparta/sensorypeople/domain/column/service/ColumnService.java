@@ -31,6 +31,7 @@ public class ColumnService {
     /*
     x-lcok 적용
      */
+    @Transactional
     public StatusCommonResponse createColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
