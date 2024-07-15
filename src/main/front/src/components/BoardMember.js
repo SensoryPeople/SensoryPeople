@@ -10,8 +10,8 @@ const BoardMember = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetchMembers();
-  }, []); // 컴포넌트가 마운트될 때 한 번만 실행
+    fetchMembers(); // 컴포넌트가 마운트될 때 멤버 리스트를 가져오는 함수 호출
+  }, []);
 
   const fetchMembers = async () => {
     try {
@@ -20,16 +20,18 @@ const BoardMember = () => {
         console.error('No token found in sessionStorage');
         return;
       }
+
       const response = await axios.get(`/boards/${boardId}/members`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setMembers(response.data);
+      setMembers(response.data.data); // 멤버 데이터를 상태에 설정
     } catch (error) {
       console.error('Error fetching board members:', error);
     }
   };
+
 
   const addMember = async (memberId) => {
     try {
@@ -56,28 +58,28 @@ const BoardMember = () => {
     }
   };
 
-  const excludeMember = async (memberId) => {
-    if (window.confirm(`정말로 ${memberId}님을 팀에서 제외하시겠습니까?`)) {
-      try {
-        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
-        if (!token) {
-          setMessage('로그인이 필요합니다.');
-          return;
-        }
-
-        await axios.delete(`/boards/${boardId}/members/${memberId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const updatedMembers = members.filter(member => member.id !== memberId);
-        setMembers(updatedMembers);
-        alert(`${memberId}님이 팀에서 제외되었습니다.`);
-      } catch (error) {
-        console.error('Error excluding member:', error);
-      }
-    }
-  };
+  // const excludeMember = async (memberId) => {
+  //   if (window.confirm(`정말로 ${memberId}님을 팀에서 제외하시겠습니까?`)) {
+  //     try {
+  //       const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+  //       if (!token) {
+  //         setMessage('로그인이 필요합니다.');
+  //         return;
+  //       }
+  //
+  //       await axios.delete(`/boards/${boardId}/members/${memberId}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       const updatedMembers = members.filter(member => member.id !== memberId);
+  //       setMembers(updatedMembers);
+  //       alert(`${memberId}님이 팀에서 제외되었습니다.`);
+  //     } catch (error) {
+  //       console.error('Error excluding member:', error);
+  //     }
+  //   }
+  // };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -96,15 +98,17 @@ const BoardMember = () => {
         </header>
         <div className="container">
           <div className="member-list">
-            {members.map(member => (
-                <div key={member.id} className="member-item">
-                  <div className="member-avatar">{member.initials}</div>
+            {members.map((member, index) => (
+                <div key={index} className="member-item">
+                  <div className="member-avatar">{member.userName.charAt(0)}</div>
                   <div className="member-info">
-                    <div className="member-id">{member.id}</div>
+                    <div className="member-id">{member.userName}</div>
+                    <div className="member-role">{member.userRole}</div>
                   </div>
-                  <div className="member-actions">
-                    <button className="exclude-btn" onClick={() => excludeMember(member.id)}>제외</button>
-                  </div>
+                  {/* 추가적인 멤버 액션 버튼 */}
+                  {/* <div className="member-actions">
+                <button className="exclude-btn" onClick={() => excludeMember(member.id)}>제외</button>
+              </div> */}
                 </div>
             ))}
           </div>
@@ -122,8 +126,8 @@ const BoardMember = () => {
             </form>
           </div>
           {/* 칸반 보드로 이동하는 버튼 */}
-          <div style={{ marginTop: '20px' }}>
-            <Link to="/kanban">
+          <div style={{marginTop: '20px'}}>
+            <Link to={`/boards/${boardId}/kanban`}>
               <button className="btn-kanban">칸반 보드로 이동</button>
             </Link>
           </div>
