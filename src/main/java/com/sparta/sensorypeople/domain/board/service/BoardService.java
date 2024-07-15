@@ -4,8 +4,12 @@ import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.board.entity.BoardMember;
+import com.sparta.sensorypeople.domain.board.entity.BoardRoleEnum;
+import com.sparta.sensorypeople.domain.board.repository.BoardMemberRepository;
 import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
 import com.sparta.sensorypeople.domain.user.entity.User;
+import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +26,8 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardMemberRepository boardMemberRepository;
     private final UserRepository userRepository;
-    private final BoardMemberService boardMemberService;
     private final int maxRetries = 10;
 
     @Transactional(readOnly = true)
@@ -54,13 +58,12 @@ public class BoardService {
                 .build();
 
         boardRepository.save(board);
-        boardMemberService.initBoardMember(board, user);
+        initBoardMember(board, user);
         return mapBoardToResponseDto(board);
     }
 
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, String name, String description, String username) {
-
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
@@ -106,6 +109,48 @@ public class BoardService {
 
     }
 
+    @Transactional
+    public BoardMember inviteUser(Long boardId, String username, String role, User user){
+
+        // 초대 권한 확인
+        BoardMember existMember = validMember(user, boardId);
+        UserAuthEnum userAuth = user.getUserAuth();
+
+        // 어드민이 아니고, 매니저가 아닐 경우
+        if(!userAuth.equals(UserAuthEnum.ADMIN) || ! existMember.getRole().equals(BoardRoleEnum.MANAGER)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 예외 처리
+        Board board = boardRepository.findById(boardId).orElseThrow(
+            () -> new CustomException(ErrorCode.BOARD_NOT_FOUND)
+        );
+        User findUser = userRepository.findByUsername(username).orElseThrow(
+            () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        BoardRoleEnum userRole;
+
+        if(role == null){
+            userRole = BoardRoleEnum.USER;
+        }
+        switch (role) {
+            case "MANAGER" -> userRole = BoardRoleEnum.MANAGER;
+            default -> userRole = BoardRoleEnum.USER;
+        }
+
+        BoardMember boardMember = new BoardMember(board, findUser, userRole);
+        boardMemberRepository.save(boardMember);
+        return boardMember;
+    }
+
+    public void initBoardMember(Board board, User user){
+
+        BoardMember boardMember = new BoardMember(board, user, BoardRoleEnum.MANAGER);
+        boardMemberRepository.save(boardMember);
+    }
+
+
     private BoardResponseDto mapBoardToResponseDto(Board board) {
         return BoardResponseDto.builder()
                 .id(board.getId())
@@ -125,5 +170,11 @@ public class BoardService {
 
     public void deleteAllBoards() {
         boardRepository.deleteAll();
+    }
+
+    public BoardMember validMember(User user, Long boardId) {
+        return boardMemberRepository.findBoardMemberBy(user.getUsername(), boardId).orElseThrow(
+            () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
     }
 }
