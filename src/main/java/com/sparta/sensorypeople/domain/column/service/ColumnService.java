@@ -109,13 +109,13 @@ public class ColumnService {
     @Transactional
     public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl,
                                              Long boardId,
-                                             Long orderNumber) {
+                                             Long columnId) {
 
         if(!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)){
             throw new CustomException(ErrorCode.ACCESS_DINIED_DELETE_COLUMN);
         }
 
-        Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
+        Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
 
         columnRepository.delete(column);
