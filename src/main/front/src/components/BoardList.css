@@ -1,0 +1,85 @@
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+.board-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.board-item {
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-title {
+  font-weight: bold;
+}
+
+.board-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+}
+
+.add-board {
+  margin-top: 20px;
+}
+
+input[type="text"] {
+  width: 70%;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.btn-add {
+  background-color: #008CBA;
+  color: white;
+}
+
+.btn-view {
+  background-color: #3498db;
+  color: white;
+}
+.btn-view:hover {
+  background-color: #2980b9;
+}
