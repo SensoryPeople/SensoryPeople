@@ -5,11 +5,13 @@ import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.card.dto.CardRequestDto;
 import com.sparta.sensorypeople.domain.column.entity.Columns;
-import com.sparta.sensorypeople.domain.user.entity.User;
+import com.sparta.sensorypeople.domain.comment.entity.Comment;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -49,6 +51,9 @@ public class Card extends TimeStamp {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_member_id", nullable = false)
     private BoardMember boardMember;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     public static Card toEntity(CardRequestDto request, Columns columns, Board board, BoardMember member, int order) {
         return Card.builder()

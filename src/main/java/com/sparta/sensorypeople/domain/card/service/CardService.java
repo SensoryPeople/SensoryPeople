@@ -134,7 +134,7 @@ public class CardService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
     }
 
-    private Card findCardById(Long cardId) {
+    public Card findCardById(Long cardId) {
         return cardRepository.findById(cardId)
             .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_FOUND));
     }
@@ -156,7 +156,7 @@ public class CardService {
 
     private BoardMember validateAccess(User user, Long boardId) {
         return boardMemberRepository.findByUserIdAndBoardId(user.getId(), boardId)
-            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     private boolean isCardOwner(Card card, User user) {

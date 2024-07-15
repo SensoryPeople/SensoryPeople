@@ -3,6 +3,8 @@ package com.sparta.sensorypeople.domain.comment.entity;
 import com.sparta.sensorypeople.common.TimeStamp;
 import com.sparta.sensorypeople.domain.board.entity.BoardMember;
 import com.sparta.sensorypeople.domain.card.entity.Card;
+import com.sparta.sensorypeople.domain.comment.dto.CommentRequestDto;
+import com.sparta.sensorypeople.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,11 +38,13 @@ public class Comment extends TimeStamp {
     @JoinColumn(name = "board_member_id", nullable = false)
     private BoardMember boardMember;
 
+    public Comment(CommentRequestDto requestDto, Card card, BoardMember boardMember){
+        this.contents = requestDto.getContents();
+        this.card = card;
+        this.boardMember = boardMember;
+    }
 
-
-
-
-
-
-
+    public void updateComment(CommentRequestDto requestDto) {
+        this.contents = requestDto.getContents();
+    }
 }
