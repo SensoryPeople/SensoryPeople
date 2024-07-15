@@ -32,7 +32,7 @@ public class ColumnController {
                                                                               @RequestBody ColumnRequestDto columnRequestDto,
                                                                               @PathVariable("boardId") Long boardId) throws InterruptedException {
 
-        ColumnResponseDto response = columnService.redissonCreateColumn(userDetailsImpl, columnRequestDto, boardId);
+        ColumnResponseDto response = columnService.createColumn(userDetailsImpl, columnRequestDto, boardId);
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "컬럼 등록 성공", response), HttpStatus.CREATED);
     }
 
