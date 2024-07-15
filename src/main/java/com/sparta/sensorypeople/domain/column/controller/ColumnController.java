@@ -1,7 +1,7 @@
 package com.sparta.sensorypeople.domain.column.controller;
 
 import com.sparta.sensorypeople.common.DataCommonResponse;
-import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
+import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
 import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
 import com.sparta.sensorypeople.domain.column.service.ColumnService;
@@ -27,14 +27,12 @@ public class ColumnController {
      */
 
     @PostMapping
-    public ResponseEntity<?> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+    public ResponseEntity<DataCommonResponse<ColumnResponseDto>> createColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @RequestBody ColumnRequestDto columnRequestDto,
                                           @PathVariable("boardId") Long boardId) {
 
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body((columnService.createColumn(userDetailsImpl, columnRequestDto, boardId)));
+        ColumnResponseDto response = columnService.createColumn(userDetailsImpl, columnRequestDto, boardId);
+        return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "컬럼 등록 성공", response), HttpStatus.CREATED);
     }
 
     /*
