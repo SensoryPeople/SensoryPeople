@@ -3,6 +3,7 @@ package com.sparta.sensorypeople.domain.column.service;
 import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.common.redisson.RedissonConfig;
 import com.sparta.sensorypeople.common.redisson.RedissonLock;
 import com.sparta.sensorypeople.domain.board.dto.MemberResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
@@ -36,46 +37,10 @@ public class ColumnService {
     private final BoardService boardService;
     private final BoardRepository boardRepository;
     private final RedissonClient redissonClient;
-    private static final int MAX_RETRIES = 10;
+    private final String lockName = "column";
 
-
-    /*
-    x-lcok 적용
-     */
     @Transactional
     public ColumnResponseDto createColumn(
-            UserDetailsImpl userDetailsImpl,
-            ColumnRequestDto columnRequestDto,
-            Long boardId) {
-
-        if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.ACCESS_DINIED_CREATE_COLUMN);
-        }
-
-        checkColumnName(columnRequestDto.getColumnName(), boardId);
-
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
-
-        int columnOrder = columnRepository.countAllByBoardId(boardId);
-
-        Columns column = new Columns(columnRequestDto, board);
-
-        column.updateOrder(columnOrder);
-
-        columnRepository.save(column);
-
-        return new ColumnResponseDto(column);
-
-    }
-
-    /*
-    redisson 분산락 적용
-     */
-
-    @Transactional
-    @RedissonLock("column")
-    public StatusCommonResponse redissonCreateColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
             Long boardId) throws InterruptedException {
@@ -84,68 +49,114 @@ public class ColumnService {
             throw new CustomException(ErrorCode.ACCESS_DINIED_CREATE_COLUMN);
         }
 
-        checkColumnName(columnRequestDto.getColumnName(), boardId);
+        RLock rLock = redissonClient.getLock(lockName);
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
-        int columnOrder = columnRepository.countAllByBoardId(boardId);
-        Columns column = new Columns(columnRequestDto, board);
-        column.updateOrder(columnOrder);
-        columnRepository.save(column);
-        return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 생성 완료");
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+
+                try {
+                    checkColumnName(columnRequestDto.getColumnName(), boardId);
+
+                    Board board = boardRepository.findById(boardId)
+                            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                    int columnOrder = columnRepository.countAllByBoardId(boardId);
+                    Columns column = new Columns(columnRequestDto, board);
+                    column.updateOrder(columnOrder);
+                    columnRepository.save(column);
+                    ColumnResponseDto result = new ColumnResponseDto(column);
+                    return result;
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return null;
     }
 
-        public List<ColumnResponseDto> getAllColumns(Long boardId, User user) {
-            // user가 boardMember에 속하는지 확인
-            boardService.validMember(user, boardId);
 
-            return columnRepository.findByBoardId(boardId).stream()
-                    .map(ColumnResponseDto::new)
-                    .collect(Collectors.toList());
-        }
+    public List<ColumnResponseDto> getAllColumns(Long boardId, User user) {
 
+        boardService.validMember(user, boardId);
 
-    /*
-    X-LOCK 적용
-     */
-    @RedissonLock("column")
-    @Transactional
-    public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl,
-                                             Long boardId,
-                                             Long orderNumber) {
-
-        if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.ACCESS_DINIED_DELETE_COLUMN);
-        }
-
-        Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
-
-        columnRepository.delete(column);
-
-        resetColumnOrder(boardId);
-
-        return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 삭제 완료");
+        return columnRepository.findByBoardId(boardId).stream()
+                .map(ColumnResponseDto::new)
+                .collect(Collectors.toList());
     }
 
-    @RedissonLock("column")
+
+     @Transactional
+    public String deleteColumn(UserDetailsImpl userDetailsImpl,
+                               Long boardId,
+                               Long orderNumber) {
+
+        RLock rLock = redissonClient.getLock(lockName);
+
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+                try {
+                    if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
+                        throw new CustomException(ErrorCode.ACCESS_DINIED_DELETE_COLUMN);
+                    }
+                    Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
+                            .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
+                    String columnName = column.getColumnName();
+                    columnRepository.delete(column);
+
+                    resetColumnOrder(boardId);
+
+                    return columnName + " 컬럼을 삭제하였습니다.";
+
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return null;
+    }
+
+
     @Transactional
     public StatusCommonResponse switchColumnOrder(UserDetailsImpl userDetailsImpl,
                                                   Long boardId,
                                                   Long columnId,
                                                   Long orderNumber) {
 
-        if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.ACCESS_DINIED_SWITCH_COLUMN);
-        }
+        RLock rLock = redissonClient.getLock(lockName);
 
-        Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
-        double doubleOrderNumber = (double) orderNumber - 0.5;
-        column.updateOrder(doubleOrderNumber);
-        columnRepository.save(column);
-        resetColumnOrder(boardId);
-        return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 순서를 " + orderNumber + "로 변경 완료");
+        try {
+            boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
+            System.out.println(available);
+            if (available) {
+                try {
+                    if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
+                        throw new CustomException(ErrorCode.ACCESS_DINIED_SWITCH_COLUMN);
+                    }
+
+                    Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
+                            .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
+                    double doubleOrderNumber = (double) orderNumber - 0.5;
+                    column.updateOrder(doubleOrderNumber);
+                    columnRepository.save(column);
+                    resetColumnOrder(boardId);
+                    return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 순서를 " + orderNumber + "로 변경 완료");
+                } finally {
+                    rLock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+
+            Thread.currentThread().interrupt();
+
+        }
+        return null;
     }
 
 

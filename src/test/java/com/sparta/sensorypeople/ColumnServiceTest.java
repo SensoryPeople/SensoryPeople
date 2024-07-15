@@ -108,7 +108,7 @@ class ColumnServiceTest {
         Long boardId = 2L;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
-        List<Future<StatusCommonResponse>> futures = new ArrayList<>();
+        List<Future<ColumnResponseDto>> futures = new ArrayList<>();
 
         //when
 
@@ -117,7 +117,7 @@ class ColumnServiceTest {
             futures.add(executorService.submit(() -> {
                                 try {
 //                                    System.out.println(finalI + "번째 thread 접근 시작");
-                                    return columnService.redissonCreateColumn(userDetails, columnRequestDto, boardId);
+                                    return columnService.createColumn(userDetails, columnRequestDto, boardId);
                                 } finally {
 //                                    System.out.println(finalI + "번째 thread 접근 종료");
                                     latch.countDown();

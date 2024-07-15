@@ -13,6 +13,11 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
+/*
+AOP를 활용한 분산락 적용을 구현하려 했으나 해당 AOP 적용시 리턴값을 정상적으로 반환하지 않는
+이슈가 있어 사용하지 않게 되었습니다.
+ */
+
 @Slf4j
 @Aspect
 @Component
