@@ -4,7 +4,6 @@ import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.domain.board.dto.BoardRequestDto;
 import com.sparta.sensorypeople.domain.board.dto.BoardResponseDto;
 import com.sparta.sensorypeople.domain.board.dto.MemberRequestDto;
-import com.sparta.sensorypeople.domain.board.service.BoardMemberService;
 import com.sparta.sensorypeople.domain.board.service.BoardService;
 import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -13,16 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;
-    private final BoardMemberService boardMemberService;
 
     // 모든 보드 조회 요청 처리
     @GetMapping
@@ -69,7 +66,7 @@ public class BoardController {
     public ResponseEntity<StatusCommonResponse> inviteUser(@PathVariable Long boardId,
                                                            @RequestBody MemberRequestDto memberRequestDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
-        boardMemberService.inviteUser(boardId, memberRequestDto.getUserName(),
+        boardService.inviteUser(boardId, memberRequestDto.getUserName(),
                 memberRequestDto.getUserRole(), userDetails.getUser());
         return ResponseEntity
                 .ok(new StatusCommonResponse(HttpStatus.OK, "보드 초대 성공"));

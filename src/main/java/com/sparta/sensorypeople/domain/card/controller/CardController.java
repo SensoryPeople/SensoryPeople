@@ -26,12 +26,12 @@ public class CardController {
     @Transactional
     @PostMapping("/status/{statusId}")
     public ResponseEntity<DataCommonResponse<CardResponseDto>> createCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestBody CardRequestDto request,
+        @PathVariable Long boardId,
         @PathVariable(value = "statusId") Long columnId,
-        @PathVariable Long boardId){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        CardResponseDto response = cardService.createCard(request, columnId, boardId, userDetails.getUser());
+        CardResponseDto response = cardService.createCard(request, boardId, columnId, userDetails.getUser());
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.CREATED, "카드 등록 성공", response), HttpStatus.CREATED);
     }
 
@@ -39,11 +39,11 @@ public class CardController {
     @Transactional
     @GetMapping
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getAllCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long boardId){
+        @PathVariable Long boardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        List<CardResponseDto> response = cardService.getAllCards(userDetails.getUser(), boardId);
-        if(response.isEmpty()){
+        List<CardResponseDto> response = cardService.getAllCards(boardId, userDetails.getUser());
+        if (response.isEmpty()) {
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 카드가 없습니다.", response), HttpStatus.OK);
         }
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 전체 조회 성공", response), HttpStatus.OK);
@@ -53,12 +53,12 @@ public class CardController {
     @Transactional
     @GetMapping("/manager")
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getManagerCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable Long boardId,
         @RequestParam(value = "manager", defaultValue = "") String manager,
-        @PathVariable Long boardId){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        List<CardResponseDto> response = cardService.getManagerCards(userDetails.getUser(), manager, boardId);
-        if(response.isEmpty()){
+        List<CardResponseDto> response = cardService.getManagerCards(boardId, manager, userDetails.getUser());
+        if (response.isEmpty()) {
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "해당 작업자의 카드가 없습니다.", response), HttpStatus.OK);
         }
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "작업자: " + manager + " 조회 성공", response), HttpStatus.OK);
@@ -68,12 +68,12 @@ public class CardController {
     @Transactional
     @GetMapping("/status")
     public ResponseEntity<DataCommonResponse<List<CardResponseDto>>> getStatusCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable Long boardId,
         @RequestParam(value = "status") String status,
-        @PathVariable Long boardId){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        List<CardResponseDto> response = cardService.getStatusCards(userDetails.getUser(), status, boardId);
-        if(response.isEmpty()){
+        List<CardResponseDto> response = cardService.getStatusCards(boardId, status, userDetails.getUser());
+        if (response.isEmpty()) {
             return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드가 없습니다.", response), HttpStatus.OK);
         }
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, status + " 상태의 카드 조회 성공", response), HttpStatus.OK);
@@ -83,11 +83,11 @@ public class CardController {
     @Transactional
     @PatchMapping("/{cardId}")
     public ResponseEntity<DataCommonResponse<CardResponseDto>> updateCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable Long cardId,
         @RequestBody CardRequestDto request,
-        @PathVariable Long cardId){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        CardResponseDto response = cardService.updateCard(userDetails.getUser(), cardId, request);
+        CardResponseDto response = cardService.updateCard(cardId, request, userDetails.getUser());
         return new ResponseEntity<>(new DataCommonResponse<>(HttpStatus.OK, "카드 수정 완료", response), HttpStatus.OK);
     }
 
@@ -95,12 +95,13 @@ public class CardController {
     @Transactional
     @PatchMapping("/{cardId}/order")
     public ResponseEntity<StatusCommonResponse> updateOrderCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam(value = "order") int order,
+        @PathVariable Long cardId,
+        @PathVariable Long boardId,
         @RequestParam(value = "targetColumnId") Long targetColumnId,
-        @PathVariable Long cardId){
+        @RequestParam(value = "order") int order,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        cardService.updateOrderCard(userDetails.getUser(), cardId, targetColumnId, order);
+        cardService.updateOrderCard(cardId, boardId, targetColumnId, order, userDetails.getUser());
         return new ResponseEntity<>(new StatusCommonResponse(HttpStatus.OK, "카드 순서 변경 완료"), HttpStatus.OK);
     }
 
@@ -108,11 +109,11 @@ public class CardController {
     @Transactional
     @DeleteMapping("/{cardId}")
     public ResponseEntity<StatusCommonResponse> deleteCard(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable Long cardId,
         @PathVariable Long boardId,
-        @PathVariable Long cardId){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        cardService.deleteCard(userDetails.getUser(), boardId, cardId);
+        cardService.deleteCard(cardId, boardId, userDetails.getUser());
         return new ResponseEntity<>(new StatusCommonResponse(HttpStatus.NO_CONTENT, "카드 삭제 완료"), HttpStatus.OK);
     }
 }

@@ -54,7 +54,7 @@ public class ColumnService {
 
         columnRepository.save(column);
 
-        return new StatusCommonResponse(HttpStatus.CREATED, column.getColumnName()+"컬럼 생성 완료");
+        return new StatusCommonResponse(HttpStatus.CREATED, column.getColumnName()+" 컬럼 생성 완료");
     }
 
     /*
@@ -200,6 +200,11 @@ public class ColumnService {
             columns.updateOrder(count);
             count++;
         }
+    }
+
+    public Columns findColumnByIdAndBoardId(Long columnId, Long boardId) {
+        return columnRepository.findByIdAndBoardId(columnId, boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
     }
 }
 

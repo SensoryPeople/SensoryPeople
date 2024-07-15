@@ -25,4 +25,6 @@ public interface UserService {
 
 
     TokenResponseDto refresh(String refreshToken);
+
+    User findByUsername(String username);
 }
