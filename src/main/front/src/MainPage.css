@@ -1,0 +1,108 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f8ff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2em;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h1 {
+  color: #4a90e2;
+  margin-bottom: 0.5em;
+}
+
+.logo {
+  font-size: 2.5em;
+  font-weight: bold;
+  background: linear-gradient(45deg, #4a90e2, #50e3c2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5em;
+}
+
+p {
+  color: #666;
+  margin-bottom: 1.5em;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.button {
+  padding: 0.8em 2em; /* Increase padding for a more consistent button size */
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.signin {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.signin:hover {
+  background-color: #3a80d2;
+}
+
+.signup {
+  background-color: #50e3c2;
+  color: white;
+}
+
+.signup:hover {
+  background-color: #40d3b2;
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2em;
+}
+
+.feature {
+  flex: 1;
+  padding: 1em;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 0 0.5em;
+}
+
+.feature h3 {
+  color: #4a90e2;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.logo {
+  animation: pulse 2s infinite;
+}
