@@ -39,7 +39,7 @@ public class ColumnService {
     x-lcok 적용
      */
     @Transactional
-    public StatusCommonResponse createColumn(
+    public ColumnResponseDto createColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
             Long boardId) {
@@ -61,7 +61,8 @@ public class ColumnService {
 
         columnRepository.save(column);
 
-        return new StatusCommonResponse(HttpStatus.CREATED, column.getColumnName()+" 컬럼 생성 완료");
+        return new ColumnResponseDto(column);
+        //return new StatusCommonResponse(HttpStatus.CREATED, column.getColumnName()+" 컬럼 생성 완료");
     }
 
     /*
