@@ -1,0 +1,123 @@
+/* boardmember.css */
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #34495e;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.member-list {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ecf0f1;
+  transition: background-color 0.3s ease;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-item:hover {
+  background-color: #f8f9fa;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 15px;
+  font-size: 16px;
+}
+
+.member-info {
+  flex-grow: 1;
+}
+
+.member-id {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.member-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.add-member-section {
+  margin-top: 30px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.add-member-form {
+  display: flex;
+  gap: 10px;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.exclude-btn {
+  background-color: #e74c3c;
+}
+
+.exclude-btn:hover {
+  background-color: #c0392b;
+}

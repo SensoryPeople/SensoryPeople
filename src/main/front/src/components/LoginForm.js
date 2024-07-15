@@ -26,6 +26,8 @@ const LoginForm = () => {
         userId: formData.username,
         password: formData.password,
       });
+      const { accessToken } = response.data; // 수정된 부분: accessToken 추출
+      sessionStorage.setItem('token', accessToken);
       alert(`로그인 성공: ${response.data.message}`);
       // 로그인 성공 시 처리 (예: 토큰 저장 등)
       navigate('/boardlist');
