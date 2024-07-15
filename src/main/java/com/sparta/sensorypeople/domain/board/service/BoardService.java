@@ -106,7 +106,11 @@ public class BoardService {
     @Transactional
     public BoardMember inviteUser(Long boardId, String username, String role, User user) {
         // 초대 권한 확인
-        validateInvitePermission(user, boardId);
+        BoardMember member = validMember(user, boardId);
+
+        if(member.getRole().equals(BoardRoleEnum.USER)){
+            throw new CustomException(ErrorCode.MEMBER_NO_INVITE_PERMISSION);
+        }
 
         // 중복 체크
         checkDuplicateMember(username, boardId);
@@ -120,16 +124,6 @@ public class BoardService {
         BoardMember boardMember = new BoardMember(board, findUser, userRole);
         boardMemberRepository.save(boardMember);
         return boardMember;
-    }
-
-    private void validateInvitePermission(User user, Long boardId) {
-        BoardMember existMember = validMember(user, boardId);
-        UserAuthEnum userAuth = user.getUserAuth();
-
-        // 어드민이 아니고, 매니저가 아닐 경우
-        if (!userAuth.equals(UserAuthEnum.ADMIN) || !existMember.getRole().equals(BoardRoleEnum.MANAGER)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
-        }
     }
 
     private void checkDuplicateMember(String username, Long boardId) {
