@@ -69,52 +69,9 @@ public class ColumnService {
     redisson 분산락 적용
      */
 
-
-
-    @Transactional
-    public StatusCommonResponse redissonCreateColumn(
-            UserDetailsImpl userDetailsImpl,
-            ColumnRequestDto columnRequestDto,
-            Long boardId) {
-
-        if (!userDetailsImpl.getUser().getUserAuth().equals(UserAuthEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.ACCESS_DINIED_CREATE_COLUMN);
-        }
-
-        RLock rLock = redissonClient.getLock(lockName);
-
-        try {
-            boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
-            System.out.println(available);
-            if (available) {
-
-                try {
-                    checkColumnName(columnRequestDto.getColumnName(), boardId);
-
-                    Board board = boardRepository.findById(boardId)
-                            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
-                    int columnOrder = columnRepository.countAllByBoardId(boardId);
-                    Columns column = new Columns(columnRequestDto, board);
-                    column.updateOrder(columnOrder);
-                    columnRepository.save(column);
-                } finally {
-                    rLock.unlock();
-
-                }
-            }
-        } catch (InterruptedException e) {
-//            throw new CustomException(ErrorCode.INTERUPTEDEXCEPTION);
-
-            Thread.currentThread().interrupt();
-
-        }
-        return new StatusCommonResponse(HttpStatus.CREATED,  "컬럼 생성 완료");
-    }
-
-
     @Transactional
     @RedissonLock("column")
-    public StatusCommonResponse redissonCreateColumn2(
+    public StatusCommonResponse redissonCreateColumn(
             UserDetailsImpl userDetailsImpl,
             ColumnRequestDto columnRequestDto,
             Long boardId) throws InterruptedException {
@@ -140,6 +97,7 @@ public class ColumnService {
     /*
     X-LOCK 적용
      */
+    @RedissonLock("column")
     @Transactional
     public StatusCommonResponse deleteColumn(UserDetailsImpl userDetailsImpl,
                                              Long boardId,
@@ -159,6 +117,7 @@ public class ColumnService {
         return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 삭제 완료");
     }
 
+    @RedissonLock("column")
     @Transactional
     public StatusCommonResponse switchColumnOrder(UserDetailsImpl userDetailsImpl,
                                                   Long boardId,

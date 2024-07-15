@@ -117,7 +117,7 @@ class ColumnServiceTest {
             futures.add(executorService.submit(() -> {
                                 try {
 //                                    System.out.println(finalI + "번째 thread 접근 시작");
-                                    return columnService.redissonCreateColumn2(userDetails, columnRequestDto, boardId);
+                                    return columnService.redissonCreateColumn(userDetails, columnRequestDto, boardId);
                                 } finally {
 //                                    System.out.println(finalI + "번째 thread 접근 종료");
                                     latch.countDown();
