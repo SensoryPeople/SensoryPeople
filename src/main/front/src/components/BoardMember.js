@@ -1,33 +1,92 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import axios from 'axios';
 import './BoardMember.css'; // CSS 파일 import
 
 const BoardMember = () => {
+  const { boardId } = useParams(); // useParams를 사용하여 URL에서 boardId 가져오기
   const [members, setMembers] = useState([]);
+  const [newMemberId, setNewMemberId] = useState('');
+  const [message, setMessage] = useState('');
 
-  const addMember = (memberId) => {
-    const initials = memberId.split('_').map(word => word[0].toUpperCase()).join('');
-    const newMember = {
-      id: memberId,
-      initials: initials
-    };
-    setMembers([...members, newMember]);
-    alert(`${memberId}님이 팀에 추가되었습니다.`);
+  useEffect(() => {
+    fetchMembers();
+  }, []); // 컴포넌트가 마운트될 때 한 번만 실행
+
+  const fetchMembers = async () => {
+    try {
+      const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+      if (!token) {
+        console.error('No token found in sessionStorage');
+        return;
+      }
+      const response = await axios.get(`/boards/${boardId}/members`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching board members:', error);
+    }
   };
 
-  const excludeMember = (memberId) => {
+  const addMember = async (memberId) => {
+    try {
+      const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+      if (!token) {
+        setMessage('로그인이 필요합니다.');
+        return;
+      }
+
+      const response = await axios.post(`/boards/${boardId}/invite`, {
+        userName: memberId,
+        userRole: 'USER', // 추가 멤버의 기본 역할 설정 (매니저로 변경 가능)
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const newMember = response.data;
+      setMembers([...members, newMember]);
+      setNewMemberId('');
+      alert(`${memberId}님이 팀에 추가되었습니다.`);
+    } catch (error) {
+      console.error('Error adding member:', error);
+    }
+  };
+
+  const excludeMember = async (memberId) => {
     if (window.confirm(`정말로 ${memberId}님을 팀에서 제외하시겠습니까?`)) {
-      const updatedMembers = members.filter(member => member.id !== memberId);
-      setMembers(updatedMembers);
-      alert(`${memberId}님이 팀에서 제외되었습니다.`);
+      try {
+        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+        if (!token) {
+          setMessage('로그인이 필요합니다.');
+          return;
+        }
+
+        await axios.delete(`/boards/${boardId}/members/${memberId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const updatedMembers = members.filter(member => member.id !== memberId);
+        setMembers(updatedMembers);
+        alert(`${memberId}님이 팀에서 제외되었습니다.`);
+      } catch (error) {
+        console.error('Error excluding member:', error);
+      }
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const memberId = e.target.memberId.value;
-    addMember(memberId);
-    e.target.reset();
+    const memberId = newMemberId.trim();
+    if (memberId) {
+      addMember(memberId);
+    } else {
+      alert('멤버 ID를 입력해주세요.');
+    }
   };
 
   return (
@@ -52,7 +111,13 @@ const BoardMember = () => {
           <div className="add-member-section">
             <h2>새 멤버 추가</h2>
             <form onSubmit={handleSubmit} className="add-member-form" id="addMemberForm">
-              <input type="text" id="memberId" placeholder="멤버 ID" required />
+              <input
+                  type="text"
+                  value={newMemberId}
+                  onChange={(e) => setNewMemberId(e.target.value)}
+                  placeholder="멤버 ID"
+                  required
+              />
               <button type="submit">추가하기</button>
             </form>
           </div>
