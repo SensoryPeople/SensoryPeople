@@ -65,6 +65,7 @@ public enum ErrorCode {
     // 보드멤버 도메인 오류 코드
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 멤버는 존재하지 않습니다." ),
     MEMBER_DUPLICATED(HttpStatus.BAD_REQUEST, "해당 멤버는 이미 존재합니다." ),
+    MEMBER_NO_INVITE_PERMISSION(HttpStatus.FORBIDDEN, "해당 멤버는 초대 권한이 없습니다."),
 
 
     // redisson 관련 오류 코드

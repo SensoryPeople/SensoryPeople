@@ -95,10 +95,10 @@ public class CardController {
     @Transactional
     @PatchMapping("/{cardId}/order")
     public ResponseEntity<StatusCommonResponse> updateOrderCard(
-        @PathVariable Long cardId,
-        @PathVariable Long boardId,
-        @RequestParam(value = "targetColumnId") Long targetColumnId,
-        @RequestParam(value = "order") int order,
+        @PathVariable Long cardId, // 바꿀 card Id
+        @PathVariable Long boardId, // 해당 카드가 존재하는 Board Id
+        @RequestParam(value = "targetColumnId") Long targetColumnId, // 내가 바꾸고자 하는 컬럼의 Id
+        @RequestParam(value = "order") int order, // 내가 바꾸고자 하는 순서 (0부터 시작)
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         cardService.updateOrderCard(cardId, boardId, targetColumnId, order, userDetails.getUser());
