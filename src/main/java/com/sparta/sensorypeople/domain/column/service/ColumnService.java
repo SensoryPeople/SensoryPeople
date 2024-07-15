@@ -201,6 +201,11 @@ public class ColumnService {
             count++;
         }
     }
+
+    public Columns findColumnByIdAndBoardId(Long columnId, Long boardId) {
+        return columnRepository.findByIdAndBoardId(columnId, boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
+    }
 }
 
 

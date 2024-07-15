@@ -40,8 +40,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public BoardResponseDto getBoardById(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = findByBoardId(boardId);
         return mapBoardToResponseDto(board);
     }
 
@@ -65,8 +64,7 @@ public class BoardService {
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, String name, String description, String username) {
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = findByBoardId(boardId);
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -88,8 +86,7 @@ public class BoardService {
         while (attempts < maxRetries) {
             try {
 
-                Board board = boardRepository.findById(boardId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                Board board = findByBoardId(boardId);
 
                 User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -122,9 +119,7 @@ public class BoardService {
         }
 
         // 예외 처리
-        Board board = boardRepository.findById(boardId).orElseThrow(
-            () -> new CustomException(ErrorCode.BOARD_NOT_FOUND)
-        );
+        Board board = findByBoardId(boardId);
         User findUser = userRepository.findByUsername(username).orElseThrow(
             () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
@@ -163,8 +158,7 @@ public class BoardService {
     public void deleteBoard(Long id, String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Board board = boardRepository.findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = findByBoardId(id);
         boardRepository.delete(board);
     }
 
@@ -176,5 +170,10 @@ public class BoardService {
         return boardMemberRepository.findBoardMemberBy(user.getUsername(), boardId).orElseThrow(
             () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
+    }
+
+    public Board findByBoardId(Long boardId){
+        return boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
     }
 }
