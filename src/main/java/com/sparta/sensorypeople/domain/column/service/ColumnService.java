@@ -3,11 +3,16 @@ package com.sparta.sensorypeople.domain.column.service;
 import com.sparta.sensorypeople.common.StatusCommonResponse;
 import com.sparta.sensorypeople.common.exception.CustomException;
 import com.sparta.sensorypeople.common.exception.ErrorCode;
+import com.sparta.sensorypeople.domain.board.dto.MemberResponseDto;
 import com.sparta.sensorypeople.domain.board.entity.Board;
 import com.sparta.sensorypeople.domain.board.repository.BoardRepository;
+import com.sparta.sensorypeople.domain.board.service.BoardService;
+import com.sparta.sensorypeople.domain.card.dto.CardResponseDto;
 import com.sparta.sensorypeople.domain.column.dto.ColumnRequestDto;
+import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
 import com.sparta.sensorypeople.domain.column.entity.Columns;
 import com.sparta.sensorypeople.domain.column.repository.ColumnRepository;
+import com.sparta.sensorypeople.domain.user.entity.User;
 import com.sparta.sensorypeople.domain.user.entity.UserAuthEnum;
 import com.sparta.sensorypeople.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class ColumnService {
 
     private final ColumnRepository columnRepository;
+    private final BoardService boardService;
     private final BoardRepository boardRepository;
 //    private final RedissonClient redissonClient;
     private final int maxRetries = 10;
@@ -100,7 +107,14 @@ public class ColumnService {
 //        }
 //    }
 
+    public List<ColumnResponseDto> getAllColumns(Long boardId, User user) {
+        // user가 boardMember에 속하는지 확인
+        boardService.validMember(user, boardId);
 
+        return columnRepository.findByBoardId(boardId).stream()
+            .map(ColumnResponseDto::new)
+            .collect(Collectors.toList());
+    }
 
 
     /*
@@ -206,6 +220,7 @@ public class ColumnService {
         return columnRepository.findByIdAndBoardId(columnId, boardId)
             .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
     }
+
 }
 
 
