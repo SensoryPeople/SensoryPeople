@@ -154,14 +154,13 @@ public class BoardService {
     @Transactional
     public BoardMember inviteUser(Long boardId, String username, String role, User user) {
         RLock rLock = redissonClient.getLock(lockName);
-
+        BoardMember boardMember = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
             System.out.println(available);
             if (available) {
 
                 try {
-
                     // 초대 권한 확인
                     isValidManager(user, boardId);
 
@@ -174,9 +173,8 @@ public class BoardService {
                     BoardRoleEnum userRole = determineUserRole(role);
 
                     // 초대 처리
-                    BoardMember boardMember = new BoardMember(board, findUser, userRole);
+                    boardMember = new BoardMember(board, findUser, userRole);
                     boardMemberRepository.save(boardMember);
-                    return boardMember;
 
                 } finally {
                     rLock.unlock();
@@ -185,9 +183,7 @@ public class BoardService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return null;
-
-
+        return boardMember;
     }
 
     public List<MemberResponseDto> getMembers(Long boardId, User user) {

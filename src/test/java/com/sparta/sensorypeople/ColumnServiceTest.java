@@ -116,10 +116,10 @@ class ColumnServiceTest {
             int finalI = i;
             futures.add(executorService.submit(() -> {
                                 try {
-//                                    System.out.println(finalI + "번째 thread 접근 시작");
+                                    System.out.println(finalI + "번째 thread 접근 시작");
                                     return columnService.createColumn(userDetails, columnRequestDto, boardId);
                                 } finally {
-//                                    System.out.println(finalI + "번째 thread 접근 종료");
+                                    System.out.println(finalI + "번째 thread 접근 종료");
                                     latch.countDown();
                                 }
                             }
@@ -140,7 +140,7 @@ class ColumnServiceTest {
                 .count();
 
         //then
-         assertEquals(1, columnRepository.count());
+         assertEquals(1, successCount);
     }
 }
 

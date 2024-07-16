@@ -39,7 +39,7 @@ public class CardService {
 
 
         RLock rLock = redissonClient.getLock(lockName);
-
+        Card card = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
             System.out.println(available);
@@ -52,9 +52,8 @@ public class CardService {
                     BoardMember member = boardService.validMember(user, boardId);
                     int order = cardRepository.countByColumnIdAndBoardId(columnId, boardId);
 
-                    Card card = Card.toEntity(request, column, board, member, order);
+                    card = Card.toEntity(request, column, board, member, order);
                     cardRepository.save(card);
-                    return new CardResponseDto(card);
 
                 } finally {
                     rLock.unlock();
@@ -66,7 +65,7 @@ public class CardService {
 
         }
 
-        return null;
+        return new CardResponseDto(card);
 
     }
 
@@ -96,7 +95,7 @@ public class CardService {
     public CardResponseDto updateCard(Long cardId, CardRequestDto request, User user) {
 
         RLock rLock = redissonClient.getLock(lockName);
-
+        Card card = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
             System.out.println(available);
@@ -104,7 +103,7 @@ public class CardService {
 
                 try {
 
-                    Card card = findCardByIdForUpdate(cardId);
+                    card = findCardByIdForUpdate(cardId);
                     if (isCardOwner(card, user)) {
                         card.update(request);
                         return new CardResponseDto(card);
@@ -118,7 +117,7 @@ public class CardService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return null;
+        return new CardResponseDto(card);
     }
 
     // 카드 순서 업데이트
