@@ -53,6 +53,9 @@ const BoardMember = () => {
       setMembers([...members, newMember]);
       setNewMemberId('');
       alert(`${memberId}님이 팀에 추가되었습니다.`);
+
+      // 멤버 추가 후에 멤버 리스트 다시 가져오기
+      fetchMembers();
     } catch (error) {
       console.error('Error adding member:', error);
     }
@@ -100,7 +103,7 @@ const BoardMember = () => {
           <div className="member-list">
             {members.map((member, index) => (
                 <div key={index} className="member-item">
-                  <div className="member-avatar">{member.userName.charAt(0)}</div>
+                  <div className="member-avatar">{member.userName?.charAt(0) ?? ''}</div>
                   <div className="member-info">
                     <div className="member-id">{member.userName}</div>
                     <div className="member-role">{member.userRole}</div>
