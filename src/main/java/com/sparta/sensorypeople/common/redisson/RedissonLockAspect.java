@@ -1,5 +1,8 @@
 package com.sparta.sensorypeople.common.redisson;
 
+import com.sparta.sensorypeople.domain.board.entity.Board;
+import com.sparta.sensorypeople.domain.column.dto.ColumnResponseDto;
+import com.sparta.sensorypeople.domain.column.entity.Columns;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -25,9 +28,9 @@ AOP를 활용한 분산락 적용을 구현하려 했으나 해당 AOP 적용시
 public class RedissonLockAspect {
 
     private final RedissonClient redissonClient;
-
+    ColumnResponseDto proceed;
     @Around("@annotation(com.sparta.sensorypeople.common.redisson.RedissonLock)")
-    public void redissonLock(ProceedingJoinPoint joinPoint) throws Throwable {
+    public ColumnResponseDto redissonLock(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         RedissonLock annotation = method.getAnnotation(RedissonLock.class);
@@ -40,7 +43,7 @@ public class RedissonLockAspect {
             if (available) {
                 try {
                     log.info("로직 수행");
-                    joinPoint.proceed();
+                    proceed = (ColumnResponseDto) joinPoint.proceed();
                 } finally {
                     log.info("락 해제");
                     lock.unlock();
@@ -51,6 +54,8 @@ public class RedissonLockAspect {
             Thread.currentThread().interrupt();
 
         }
+
+        return proceed;
 
     }
 }

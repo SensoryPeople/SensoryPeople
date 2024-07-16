@@ -50,10 +50,10 @@ public class ColumnService {
         }
 
         RLock rLock = redissonClient.getLock(lockName);
-
+        ColumnResponseDto result = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
-            System.out.println(available);
+
             if (available) {
 
                 try {
@@ -65,8 +65,8 @@ public class ColumnService {
                     Columns column = new Columns(columnRequestDto, board);
                     column.updateOrder(columnOrder);
                     columnRepository.save(column);
-                    ColumnResponseDto result = new ColumnResponseDto(column);
-                    return result;
+                    result = new ColumnResponseDto(column);
+
                 } finally {
                     rLock.unlock();
                 }
@@ -74,9 +74,8 @@ public class ColumnService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return null;
+        return result;
     }
-
 
     public List<ColumnResponseDto> getAllColumns(Long boardId, User user) {
 
@@ -88,13 +87,13 @@ public class ColumnService {
     }
 
 
-     @Transactional
+    @Transactional
     public String deleteColumn(UserDetailsImpl userDetailsImpl,
                                Long boardId,
                                Long orderNumber) {
 
         RLock rLock = redissonClient.getLock(lockName);
-
+        String columnName = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
             System.out.println(available);
@@ -105,12 +104,10 @@ public class ColumnService {
                     }
                     Columns column = columnRepository.findByIdAndBoardId(orderNumber, boardId)
                             .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
-                    String columnName = column.getColumnName();
+                    columnName = column.getColumnName();
                     columnRepository.delete(column);
 
                     resetColumnOrder(boardId);
-
-                    return columnName + " 컬럼을 삭제하였습니다.";
 
                 } finally {
                     rLock.unlock();
@@ -119,7 +116,7 @@ public class ColumnService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return null;
+        return columnName + " 컬럼을 삭제하였습니다.";
     }
 
 
@@ -130,7 +127,7 @@ public class ColumnService {
                                                   Long orderNumber) {
 
         RLock rLock = redissonClient.getLock(lockName);
-
+        String columnName = null;
         try {
             boolean available = rLock.tryLock(RedissonConfig.WAIT_TIME, RedissonConfig.LEASE_TIME, RedissonConfig.TIMEUNIT);
             System.out.println(available);
@@ -142,11 +139,12 @@ public class ColumnService {
 
                     Columns column = columnRepository.findByIdAndBoardId(columnId, boardId)
                             .orElseThrow(() -> new CustomException(ErrorCode.COLUMN_NOT_FOUND));
+                    columnName = column.getColumnName();
                     double doubleOrderNumber = (double) orderNumber - 0.5;
                     column.updateOrder(doubleOrderNumber);
                     columnRepository.save(column);
                     resetColumnOrder(boardId);
-                    return new StatusCommonResponse(HttpStatus.OK, column.getColumnName() + "컬럼 순서를 " + orderNumber + "로 변경 완료");
+
                 } finally {
                     rLock.unlock();
                 }
@@ -156,17 +154,17 @@ public class ColumnService {
             Thread.currentThread().interrupt();
 
         }
-        return null;
+        return new StatusCommonResponse(HttpStatus.OK, columnName + " 컬럼 순서를 " + orderNumber + "로 변경 완료");
     }
 
 
     private boolean checkColumnName(String columnName, Long boardId) {
-        System.out.println("==========checkcolumnname 수행==========");
+        ;
         Optional<Columns> columns = columnRepository
                 .findByColumnNameAndBoardId(columnName, boardId);
 
         if (!columns.isEmpty()) {
-            System.out.println("==========비어있음 익셉션==========");
+
             throw new CustomException(ErrorCode.DUPLICATED_COLUMNNAME);
         }
         return true;

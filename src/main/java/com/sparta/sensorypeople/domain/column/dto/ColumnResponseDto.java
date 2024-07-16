@@ -1,7 +1,9 @@
 package com.sparta.sensorypeople.domain.column.dto;
 
 import com.sparta.sensorypeople.domain.column.entity.Columns;
+import lombok.Builder;
 import lombok.Getter;
+
 
 @Getter
 public class ColumnResponseDto {
@@ -15,8 +17,8 @@ public class ColumnResponseDto {
     private Double ColumnOrder;
 
     public ColumnResponseDto(Columns column) {
-        this.id=column.getId();
-        this.boardId=column.getBoard().getId();
+        this.id = column.getId();
+        this.boardId = column.getBoard().getId();
         this.ColumnName = column.getColumnName();
         this.ColumnOrder = column.getColumnOrder();
     }

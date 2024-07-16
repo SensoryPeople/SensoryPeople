@@ -37,8 +37,8 @@ public class ColumnController {
     }
 
     /*
-    컬럼 삭제 기능
-     */
+컬럼 삭제 기능
+ */
     @DeleteMapping("/{columnId}")
     public ResponseEntity<?> deleteColumn(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                           @PathVariable("boardId") Long boardId,

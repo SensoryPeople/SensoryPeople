@@ -37,8 +37,8 @@ public class RedissonConfig {
     public RedissonClient redissonClient(){
         Config config = new Config();
         config.useSingleServer()
-                .setAddress(REDISSON_HOST_PREFIX + host + ":" + port)
-                .setPassword("1234");
+                .setAddress(REDISSON_HOST_PREFIX + host + ":" + port);
+//                .setPassword("1234");
 
         return Redisson.create(config);
     }
