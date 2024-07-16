@@ -1,4 +1,4 @@
-# KanbanBoard🎬
+# KanbanBoard📋
 
 - 칸반보드 형태의 온라인 협업도구입니다.
 
