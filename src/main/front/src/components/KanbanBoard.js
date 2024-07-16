@@ -57,15 +57,34 @@ const KanbanBoard = () => {
     fetchColumns();
   }, [boardId]);
 
-  const addColumn = async (columnId, newCardData) => {
-    const updatedColumns = columns.map(column =>
-        column.id === columnId ? {
-          ...column,
-          cards: [...column.cards, newCardData],
-        } : column
-    );
-    setColumns(updatedColumns);
+  const addColumn = async () => {
+    const columnName = prompt('새 컬럼의 제목을 입력하세요:');
+    if (columnName) {
+      try {
+        const token = sessionStorage.getItem('token');
+        if (!token) {
+          console.error('No token found in sessionStorage');
+          return;
+        }
+
+        const response = await axios.post(
+            `/boards/${boardId}/columns`,
+            { columnName },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+        );
+        const newColumn = response.data.data;
+        setColumns([...columns, newColumn]);
+      } catch (error) {
+        console.error('Error adding column:', error);
+      }
+    }
   };
+
 
   const deleteColumn = async (columnId, columnName) => {
     try {
@@ -94,6 +113,16 @@ const KanbanBoard = () => {
     }
   };
 
+  const addCard = async (columnId, newCardData) => {
+    const updatedColumns = columns.map(column =>
+        column.id === columnId ? {
+          ...column,
+          cards: [...(column.cards || []), newCardData], // 기존 cards 배열이 없으면 빈 배열로 초기화
+        } : column
+    );
+    setColumns(updatedColumns);
+  };
+
   const toggleAddCardForm = (columnId) => {
     setShowAddCardFormForColumn(prevState => ({
       ...prevState,
@@ -109,7 +138,7 @@ const KanbanBoard = () => {
           </header>
           <div className="board">
             {columns.map((column, index) => (
-                <div key={column.id} className="column" draggable="true" style={{ opacity: 1 }}>
+                <div key={column.id} className="column" draggable="true" style={{opacity: 1}}>
                   <div className="column-header">
                     <span className="column-title">{column.columnName}</span>
                     <div className="column-actions">
@@ -139,7 +168,7 @@ const KanbanBoard = () => {
                           columnId={column.id}
                           token={sessionStorage.getItem('token')}
                           onClose={() => toggleAddCardForm(column.id)}
-                          addColumn={addColumn} // addColumn 함수를 AddCardForm에 전달
+                          addCard={addCard} // addColumn 함수를 AddCardForm에 전달
                       />
                   )}
                 </div>
