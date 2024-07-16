@@ -4,17 +4,17 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './KanbanBoard.css';
+import AddCardForm from './AddCardForm'; // AddCardForm 컴포넌트 import
 
 const KanbanBoard = () => {
-  const { boardId } = useParams(); // useParams를 사용하여 URL에서 boardId 가져오기
-  const [columns, setColumns] = useState([]); // 초기 상태를 빈 배열로 설정
-  const [confirmDeleteColumn, setConfirmDeleteColumn] = useState(null); // 삭제할 컬럼 정보를 저장하는 상태
+  const { boardId } = useParams();
+  const [columns, setColumns] = useState([]);
+  const [showAddCardFormForColumn, setShowAddCardFormForColumn] = useState({}); // 각 컬럼의 폼 표시 상태를 저장하는 객체
 
-  // 초기 데이터를 가져오는 함수
   useEffect(() => {
     const fetchColumns = async () => {
       try {
-        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+        const token = sessionStorage.getItem('token');
         if (!token) {
           console.error('No token found in sessionStorage');
           return;
@@ -25,7 +25,30 @@ const KanbanBoard = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setColumns(response.data.data || []); // 데이터가 없을 경우 빈 배열로 설정
+
+        const fetchedColumns = response.data.data || [];
+
+        const columnRequests = fetchedColumns.map(column =>
+            axios.get(`/boards/${boardId}/cards/status`, {
+              params: {
+                columnId: column.id,
+              },
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+        );
+
+        // 각 컬럼에 대한 카드 데이터를 한꺼번에 가져옵니다.
+        const cardResponses = await Promise.all(columnRequests);
+
+        // 가져온 카드 데이터를 각 컬럼에 추가합니다.
+        const updatedColumns = fetchedColumns.map((column, index) => ({
+          ...column,
+          cards: cardResponses[index].data.data,
+        }));
+
+        setColumns(updatedColumns);
       } catch (error) {
         console.error('Error fetching columns:', error);
       }
@@ -34,37 +57,19 @@ const KanbanBoard = () => {
     fetchColumns();
   }, [boardId]);
 
-  const addColumn = async () => {
-    const columnName = prompt('새 컬럼의 제목을 입력하세요:');
-    if (columnName) {
-      try {
-        const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
-        if (!token) {
-          console.error('No token found in sessionStorage');
-          return;
-        }
-
-        const response = await axios.post(
-            `/boards/${boardId}/columns`,
-            { columnName },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            }
-        );
-        const newColumn = response.data.data; // 새로운 컬럼 데이터 가져오기
-        setColumns([...columns, newColumn]); // 새 컬럼 추가 후 상태 업데이트
-      } catch (error) {
-        console.error('Error adding column:', error);
-      }
-    }
+  const addColumn = async (columnId, newCardData) => {
+    const updatedColumns = columns.map(column =>
+        column.id === columnId ? {
+          ...column,
+          cards: [...column.cards, newCardData],
+        } : column
+    );
+    setColumns(updatedColumns);
   };
 
   const deleteColumn = async (columnId, columnName) => {
     try {
-      const token = sessionStorage.getItem('token'); // 세션 스토리지에서 토큰 가져오기
+      const token = sessionStorage.getItem('token');
       if (!token) {
         console.error('No token found in sessionStorage');
         return;
@@ -76,9 +81,8 @@ const KanbanBoard = () => {
         },
       });
 
-      // 컬럼 삭제 후 상태 업데이트
       setColumns(columns.filter(column => column.id !== columnId));
-      alert(`${columnName} 컬럼이 삭제되었습니다.`); // 삭제 완료 알림
+      alert(`${columnName} 컬럼이 삭제되었습니다.`);
     } catch (error) {
       console.error('Error deleting column:', error);
     }
@@ -86,8 +90,15 @@ const KanbanBoard = () => {
 
   const confirmDelete = (columnId, columnName) => {
     if (window.confirm(`${columnName}을 삭제하시겠습니까?`)) {
-      deleteColumn(columnId, columnName); // 확인을 누르면 삭제 함수 호출
+      deleteColumn(columnId, columnName);
     }
+  };
+
+  const toggleAddCardForm = (columnId) => {
+    setShowAddCardFormForColumn(prevState => ({
+      ...prevState,
+      [columnId]: !prevState[columnId],
+    }));
   };
 
   return (
@@ -103,10 +114,34 @@ const KanbanBoard = () => {
                     <span className="column-title">{column.columnName}</span>
                     <div className="column-actions">
                       <button className="btn">수정</button>
-                      <button className="btn btn-delete" onClick={() => confirmDelete(column.id, column.columnName)}>삭제</button>
+                      <button className="btn btn-delete" onClick={() => confirmDelete(column.id, column.columnName)}>
+                        삭제
+                      </button>
                     </div>
                   </div>
-                  <div className="add-task">+ 새 카드 추가</div>
+                  <div className="add-task" onClick={() => toggleAddCardForm(column.id)}>
+                    + 새 카드 추가
+                  </div>
+                  {column.cards && (
+                      <div className="card-list">
+                        {column.cards.map((card, cardIndex) => (
+                            <div key={cardIndex} className="card">
+                              <h3>{card.name}</h3>
+                              <p>{card.contents}</p>
+                              {/* 추가적인 카드 정보 (예: 마감일, 담당자 등) 표시 */}
+                            </div>
+                        ))}
+                      </div>
+                  )}
+                  {showAddCardFormForColumn[column.id] && (
+                      <AddCardForm
+                          boardId={boardId}
+                          columnId={column.id}
+                          token={sessionStorage.getItem('token')}
+                          onClose={() => toggleAddCardForm(column.id)}
+                          addColumn={addColumn} // addColumn 함수를 AddCardForm에 전달
+                      />
+                  )}
                 </div>
             ))}
             <div className="add-column">
